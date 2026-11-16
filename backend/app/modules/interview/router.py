@@ -27,7 +27,7 @@ from app.core.database import get_db
 from app.api.dependencies.auth import get_current_user
 from app.models.user import User
 from app.modules.academic.service import AcademicService
-from app.modules.interview.service import interview_service as _interview_svc
+from app.modules.interview.service import interview_service as _interview_svc, extract_weak_skills
 from app.schemas.interview import (
     GeneratedQuestionsResponse,
     InterviewSessionOut,
@@ -616,6 +616,17 @@ async def websocket_interview(
                                         "message": "All interview questions answered. Session completed."
                                     }
                                 })
+
+                                # After the client is told, so a slow or failing roadmap update never blocks it.
+                                try:
+                                    from app.modules.roadmap.service import get_active_roadmap, update_roadmap_with_weak_skills
+                                    weak_skills = extract_weak_skills(session.questions)
+                                    roadmap = get_active_roadmap(db, user.id)
+                                    if roadmap and weak_skills:
+                                        await update_roadmap_with_weak_skills(db, roadmap, weak_skills)
+                                except Exception as e:
+                                    db.rollback()
+                                    logger.error("Failed to update roadmap with weak skills: %s", e)
                     except Exception as e:
                         logger.error("Error submitting answer in WebSocket: %s", e)
                         await websocket.send_json({
