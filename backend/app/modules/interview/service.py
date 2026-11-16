@@ -749,7 +749,12 @@ STRICT RULES:
         from app.models.skill_taxonomy import SkillTaxonomy
         from app.models.roadmap import Roadmap, RoadmapTask
         from app.models.interview import InterviewQuestion
-        
+        from app.modules.roadmap.service import get_owned_task_or_404
+
+        # A client-supplied task ID must belong to this user (404 otherwise).
+        if roadmap_task_id:
+            get_owned_task_or_404(db, roadmap_task_id, user_id)
+
         _academic_svc = AcademicService()
         profile = _academic_svc.get_student_profile(db, user_id)
         branch = profile.department if profile else "CSE"

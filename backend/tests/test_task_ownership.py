@@ -6,6 +6,7 @@ User B (student, ``other_user`` / ``other_auth_client``) must never be able to
 read or change it by supplying its ID.
 """
 import uuid
+from contextlib import contextmanager
 from unittest.mock import patch
 
 import pytest
@@ -294,3 +295,136 @@ def test_admin_cannot_complete_or_vote_on_other_users_task(
     assert snap_task(db_session, learn_b) == before_learn
     assert snap_task(db_session, apply_b) == before_apply
     assert snap_resources(db_session) == before_res
+
+
+# ---------------------------------------------------------------------------
+# B1: POST /interview/sessions  (roadmap_task_id in body)
+# B2: POST /interview/sessions/micro  (roadmap_task_id query param)
+# ---------------------------------------------------------------------------
+
+FAKE_QUESTIONS = (
+    [
+        {"question": "What is FastAPI?", "topic": "FastAPI", "difficulty": "medium"},
+        {"question": "What is Depends?", "topic": "FastAPI", "difficulty": "medium"},
+    ],
+    "mock",
+)
+
+
+@contextmanager
+def no_ai():
+    """No network: stub question generation, force the static micro fallback."""
+    with patch(
+        "app.modules.interview.service.InterviewService.generate_questions_async",
+        return_value=FAKE_QUESTIONS,
+    ), patch("app.modules.interview.service.settings.GROQ_API_KEY", None),          patch("app.modules.interview.service.settings.GEMINI_API_KEY", None):
+        yield
+
+
+def session_count(db, user):
+    db.expire_all()
+    return db.query(InterviewSession).filter(InterviewSession.user_id == user.id).count()
+
+
+def create_session(client, task_id):
+    return client.post(
+        "/api/interview/sessions",
+        json={"jd_text": "", "limit": 2, "roadmap_task_id": str(task_id)},
+    )
+
+
+def create_micro(client, skill_id, task_id):
+    return client.post(
+        f"/api/interview/sessions/micro?skill_id={skill_id}&roadmap_task_id={task_id}"
+    )
+
+
+def test_create_session_foreign_task_404_and_no_session(
+    other_auth_client, db_session, other_user, other_student_profile, a_tasks
+):
+    _, _, apply_, _ = a_tasks
+    before = snap_task(db_session, apply_)
+    with no_ai():
+        resp = create_session(other_auth_client, apply_.id)
+    assert resp.status_code == 404
+    assert session_count(db_session, other_user) == 0
+    assert db_session.query(InterviewSession).count() == 0
+    assert snap_task(db_session, apply_) == before
+
+
+def test_create_session_unknown_and_foreign_task_are_indistinguishable(
+    other_auth_client, other_student_profile, a_tasks
+):
+    _, _, apply_, _ = a_tasks
+    with no_ai():
+        unknown = create_session(other_auth_client, uuid.uuid4())
+        foreign = create_session(other_auth_client, apply_.id)
+    assert foreign.status_code == unknown.status_code == 404
+    assert foreign.json() == unknown.json()
+
+
+def test_create_session_admin_cannot_use_other_users_task(
+    auth_client, db_session, sample_user, sample_student_profile, b_tasks
+):
+    _, _, apply_b = b_tasks
+    with no_ai():
+        resp = create_session(auth_client, apply_b.id)
+    assert resp.status_code == 404
+    assert session_count(db_session, sample_user) == 0
+
+
+def test_create_session_owner_still_succeeds(
+    auth_client, sample_student_profile, a_tasks
+):
+    _, _, apply_, skill = a_tasks
+    with no_ai():
+        resp = create_session(auth_client, apply_.id)
+    assert resp.status_code == 201
+    assert resp.json()["roadmap_task_id"] == str(apply_.id)
+    assert resp.json()["associated_skill_id"] == str(skill.id)
+
+
+def test_micro_session_foreign_task_404_not_500_and_no_session(
+    other_auth_client, db_session, other_user, other_student_profile, a_tasks
+):
+    _, _, apply_, skill = a_tasks
+    before = snap_task(db_session, apply_)
+    with no_ai():
+        resp = create_micro(other_auth_client, skill.id, apply_.id)
+    assert resp.status_code == 404
+    assert session_count(db_session, other_user) == 0
+    assert db_session.query(InterviewSession).count() == 0
+    assert snap_task(db_session, apply_) == before
+
+
+def test_micro_session_unknown_and_foreign_task_are_indistinguishable(
+    other_auth_client, other_student_profile, a_tasks
+):
+    _, _, apply_, skill = a_tasks
+    with no_ai():
+        unknown = create_micro(other_auth_client, skill.id, uuid.uuid4())
+        foreign = create_micro(other_auth_client, skill.id, apply_.id)
+    assert foreign.status_code == unknown.status_code == 404
+    assert foreign.json() == unknown.json()
+
+
+def test_micro_session_admin_cannot_use_other_users_task(
+    auth_client, db_session, sample_user, sample_student_profile, b_tasks, a_tasks
+):
+    _, _, apply_b = b_tasks
+    skill = a_tasks[3]
+    with no_ai():
+        resp = create_micro(auth_client, skill.id, apply_b.id)
+    assert resp.status_code == 404
+    assert session_count(db_session, sample_user) == 0
+
+
+def test_micro_session_owner_still_succeeds(
+    auth_client, sample_student_profile, a_tasks
+):
+    _, _, apply_, skill = a_tasks
+    with no_ai():
+        resp = create_micro(auth_client, skill.id, apply_.id)
+    assert resp.status_code == 201, resp.text
+    assert resp.json()["roadmap_task_id"] == str(apply_.id)
+    assert resp.json()["is_micro"] is True
