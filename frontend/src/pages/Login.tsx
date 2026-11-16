@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { LogIn, User, Lock, AlertCircle, Zap } from 'lucide-react';
 
 const Login = () => {
     const navigate = useNavigate();
+    const message = useLocation().state?.message;
     const [studentId, setStudentId] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -81,6 +82,9 @@ const Login = () => {
                     }}
                 >
                     <form onSubmit={handleSubmit} className="space-y-5">
+                        {message && !error && (
+                            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{message}</p>
+                        )}
                         {error && (
                             <div
                                 className="flex items-center gap-2.5 p-3.5 rounded-xl"
