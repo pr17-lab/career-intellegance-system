@@ -12,13 +12,12 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 from app.core.config import settings
-from app.core.security import verify_password, create_access_token, get_password_hash
+from app.core.security import verify_password, create_access_token, get_password_hash, validate_password_strength
 from app.models.user import User
 from app.models.student_profile import StudentProfile
 from app.api.dependencies.database import get_db
 from app.api.dependencies.auth import get_current_user
 from app.schemas.auth import Token, UserResponse, StudentRegistration, UpdateProfileRequest, ChangePasswordRequest
-from app.utils.academic import calculate_grade, calculate_grade_points
 
 router = APIRouter(tags=["Authentication"])
 limiter = Limiter(key_func=get_remote_address)
@@ -30,19 +29,22 @@ limiter = Limiter(key_func=get_remote_address)
 
 def _run_skill_extraction(user_id: str) -> None:
     """Called as a BackgroundTask after successful student registration."""
-    from app.api.dependencies.database import SessionLocal
+    from app.core.database import SessionLocal
     from app.modules.skills.engine import compute_skills_for_student, compute_gaps_for_student
 
-    db = SessionLocal()
-    try:
-        compute_skills_for_student(db, user_id)
-        compute_gaps_for_student(db, user_id)
-    except Exception as e:
-        # Non-fatal — skills can be recomputed later
-        import logging
-        logging.getLogger(__name__).warning("Skill extraction failed for %s: %s", user_id, e)
-    finally:
-        db.close()
+    # Use contextmanager pattern to ensure the session is always closed,
+    # mirroring what FastAPI's Depends(get_db) does — avoids holding open
+    # connections and keeps the session scoped to this single background job.
+    with SessionLocal() as db:
+        try:
+            compute_skills_for_student(db, user_id)
+            compute_gaps_for_student(db, user_id)
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            # Non-fatal — skills can be recomputed later
+            import logging
+            logging.getLogger(__name__).warning("Skill extraction failed for %s: %s", user_id, e)
 
 
 
@@ -58,11 +60,9 @@ async def register_student(
 ):
 
     # --- Validation ---
-    if len(payload.password) < 8 or not any(c.isdigit() for c in payload.password):
-        raise HTTPException(
-            status_code=422,
-            detail="Password must be at least 8 characters and contain a number",
-        )
+    is_valid, msg = validate_password_strength(payload.password)
+    if not is_valid:
+        raise HTTPException(status_code=422, detail=msg)
     if payload.department not in ["CSE", "ECE", "AIML", "MECH", "AI&ML"]:
         raise HTTPException(status_code=422, detail="Invalid department")
     if not 1 <= payload.current_semester <= 8:
@@ -159,6 +159,12 @@ async def login(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Account is locked due to too many failed login attempts. Please try again later.",
             headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This account has been deactivated. Please contact support.",
         )
 
     if not (user.password_hash and verify_password(form_data.password, user.password_hash)):
@@ -281,7 +287,7 @@ async def change_password(
     Allow the authenticated student to change their password.
     Verifies the current password before applying the update.
     """
-    from app.core.security import verify_password, get_password_hash
+    from app.core.security import verify_password, get_password_hash, validate_password_strength
 
     if not verify_password(payload.current_password, current_user.password_hash):
         raise HTTPException(
@@ -289,10 +295,11 @@ async def change_password(
             detail="Current password is incorrect",
         )
 
-    if len(payload.new_password) < 8 or not any(c.isdigit() for c in payload.new_password):
+    is_valid, msg = validate_password_strength(payload.new_password)
+    if not is_valid:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="New password must be at least 8 characters and contain a number",
+            detail=msg,
         )
 
     current_user.password_hash = get_password_hash(payload.new_password)

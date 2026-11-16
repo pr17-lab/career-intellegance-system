@@ -12,6 +12,7 @@ from pydantic import BaseModel, field_validator
 from app.api.dependencies.database import get_db
 from app.api.dependencies.auth import get_current_user
 from app.models.user import User
+from app.models.student_project import StudentProject
 from app.modules.skills.service import verify_github_complexity_async
 
 router = APIRouter(prefix="/api/skills/project", tags=["Projects"])
@@ -38,15 +39,13 @@ class ProjectResponse(BaseModel):
     calculated_complexity: Optional[int] = None
     analyzed_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 
 @router.post("/verify", status_code=status.HTTP_202_ACCEPTED)
 async def verify_project(
     payload: ProjectVerifyRequest,
     background_tasks: BackgroundTasks,
-    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     """
@@ -56,8 +55,7 @@ async def verify_project(
     background_tasks.add_task(
         verify_github_complexity_async,
         payload.repo_url,
-        current_user.id,
-        db
+        current_user.id
     )
     return {
         "status": "processing",
@@ -73,5 +71,4 @@ def get_my_projects(
     """
     Get all projects for the current user.
     """
-    from app.models.student_project import StudentProject
     return db.query(StudentProject).filter(StudentProject.user_id == current_user.id).order_by(StudentProject.created_at.desc()).all()

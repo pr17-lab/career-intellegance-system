@@ -111,3 +111,44 @@ def test_unauthorized_access(client):
     response = client.get("/api/auth/me")
     
     assert response.status_code == 401
+
+
+LONG_ASCII = "Aa1!" + "x" * 69        # 73 characters, 73 bytes
+LONG_EMOJI = "Aa1!" + "😀" * 40  # 40 emoji + 4 ASCII, 164 bytes in UTF-8
+
+
+def _register_payload(password):
+    return {
+        "full_name": "Long Password",
+        "email": "long.password@example.com",
+        "password": password,
+        "department": "CSE",
+        "batch_year": 2026,
+        "current_semester": 3,
+    }
+
+
+@pytest.mark.parametrize("password", [LONG_ASCII, LONG_EMOJI], ids=["73-ascii", "40-emoji"])
+def test_register_rejects_password_over_72_bytes(client, password):
+    """bcrypt cannot hash more than 72 bytes: reject with 422 (never truncate)."""
+    assert len(password.encode("utf-8")) > 72
+    response = client.post("/api/auth/register", json=_register_payload(password))
+    assert response.status_code == 422
+    assert "72 bytes" in response.text
+
+
+@pytest.mark.parametrize("password", [LONG_ASCII, LONG_EMOJI], ids=["73-ascii", "40-emoji"])
+def test_change_password_rejects_new_password_over_72_bytes(auth_client, password):
+    response = auth_client.put(
+        "/api/auth/change-password",
+        json={"current_password": "Test@123", "new_password": password},
+    )
+    assert response.status_code == 422
+
+
+def test_login_with_password_over_72_bytes_returns_401(client, sample_user):
+    response = client.post(
+        "/api/auth/login",
+        data={"username": "TEST001", "password": LONG_ASCII},
+    )
+    assert response.status_code == 401

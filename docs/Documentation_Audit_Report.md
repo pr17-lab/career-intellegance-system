@@ -1,5 +1,7 @@
 # SATA Technical Documentation — Comprehensive Audit Report
 
+> **STALE:** Audit of the previous academic-records product; not updated for the current app.
+
 **Date**: May 4, 2026
 **Target**: `SATA_Technical_Documentation_Part1.md` and `SATA_Technical_Documentation_Part2.md`
 **Objective**: Strict coverage + quality verification against engineering documentation standards.

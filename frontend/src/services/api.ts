@@ -1,42 +1,16 @@
 import api from '../api/client';
 import {
-    StudentListResponse,
-    Student,
-    AcademicRecordSummary,
-    GPATrend,
-    SubjectPerformance,
-    SemesterComparison,
-    StudentAnalyticsSummary,
-    CohortStats,
-    AnalyticsOverview
-} from '../api/types';
-import {
     StudentSkill,
     SkillGap,
     SkillsSummary,
-    CareerRecommendation,
+    CareerRecommendationsResponse,
     Roadmap,
     RoadmapDetail,
     StudentPreferences,
     JobListingsResponse,
     TaxonomySearchResponse,
 } from '../types/career';
-
-export const StudentService = {
-    getStudents: async (page = 1, pageSize = 20, branch?: string, semester?: number) => {
-        const params: any = { page, page_size: pageSize };
-        if (branch) params.branch = branch;
-        if (semester) params.semester = semester;
-
-        const response = await api.get<StudentListResponse>('/students', { params });
-        return response.data;
-    },
-
-    getStudent: async (id: string) => {
-        const response = await api.get<Student>(`/students/${id}`);
-        return response.data;
-    }
-};
+import type { InterviewSession } from '../types/interview';
 
 // ─── V2 Career Intelligence Services ──────────────────────────────────────────
 
@@ -57,12 +31,7 @@ export const SkillsService = {
     },
 
     getCareerRecommendations: async () => {
-        const response = await api.get<any>('/skills/recommendations');
-        return response.data;
-    },
-
-    getRecommendation: async () => {
-        const response = await api.get<CareerRecommendation>('/skills/recommendation');
+        const response = await api.get<CareerRecommendationsResponse>('/skills/recommendations');
         return response.data;
     },
 
@@ -111,12 +80,12 @@ export const RoadmapService = {
     createMicroSession: async (skill_id: string, roadmap_task_id?: string) => {
         const params: Record<string, string> = { skill_id };
         if (roadmap_task_id) params.roadmap_task_id = roadmap_task_id;
-        const response = await api.post<any>('/interview/sessions/micro', null, { params });
+        const response = await api.post<InterviewSession>('/interview/sessions/micro', null, { params });
         return response.data;
     },
 
     createProjectSession: async (project_id: string, limit = 3) => {
-        const response = await api.post<any>('/interview/sessions/practice-project', {
+        const response = await api.post<InterviewSession>('/interview/sessions/practice-project', {
             project_id,
             limit
         });

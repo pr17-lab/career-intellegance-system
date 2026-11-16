@@ -1,5 +1,7 @@
 # Student Academic Tracking & Analytics (SATA) - Features & Working
 
+> **STALE:** This describes the removed academic-records and GPA product. The app is now a career-intelligence tracker (skills, roadmap, interview prep).
+
 This document provides a comprehensive overview of the features, capabilities, and the underlying working mechanisms of the SATA project.
 
 ## 1. Project Overview

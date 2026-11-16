@@ -2,26 +2,31 @@
 API routes for Career Recommendations dashboard.
 """
 
-from fastapi import APIRouter, Depends
+import uuid
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.api.dependencies.database import get_db
 from app.api.dependencies.auth import get_current_user
 from app.models.user import User
+from app.models.student_profile import StudentProfile
+from app.models.student_skill import StudentSkill
+from app.models.skill_taxonomy import SkillTaxonomy
 from app.modules.skills import service
+from app.modules.skills.engine import calculate_role_score_and_breakdown
 
 router = APIRouter(prefix="/api/skills", tags=["Career Recommendations"])
 
 
 @router.get("/recommendations")
-async def get_career_recommendations(
+def get_career_recommendations(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """
     Get career recommendations and grouped match tiers for the authenticated student.
     """
-    import uuid
     user_uuid = current_user.id
     if isinstance(user_uuid, str):
         user_uuid = uuid.UUID(user_uuid)
@@ -51,7 +56,7 @@ async def get_career_recommendations(
 
 
 @router.get("/recommendations/{job_role}/breakdown")
-async def get_career_recommendation_breakdown(
+def get_career_recommendation_breakdown(
     job_role: str,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -59,13 +64,6 @@ async def get_career_recommendation_breakdown(
     """
     Get detailed match score breakdown and next tier recommendation for a specific job role.
     """
-    from fastapi import HTTPException, status
-    from sqlalchemy.sql import text
-    import uuid
-    from app.models.student_profile import StudentProfile
-    from app.models.student_skill import StudentSkill
-    from app.models.skill_taxonomy import SkillTaxonomy
-    
     # 1. Fetch requirements for the job_role case-insensitively
     res = db.execute(
         text("SELECT job_role, skill_id, importance, min_score_required FROM job_skill_requirements WHERE LOWER(job_role) = :role"),
@@ -107,7 +105,6 @@ async def get_career_recommendation_breakdown(
     id_to_name = {str(s.id): s.skill_name for s in skill_tax}
     
     # 5. Call score and breakdown engine helper
-    from app.modules.skills.engine import calculate_role_score_and_breakdown
     result = calculate_role_score_and_breakdown(
         db=db,
         user_id=user_uuid,

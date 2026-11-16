@@ -9,70 +9,6 @@ from app.models.skill_taxonomy import SkillTaxonomy
 from app.models.skill_gap import SkillGap
 from app.utils.academic import score_to_level
 
-SUBJECT_TO_SKILL = {
-  "Data Structures": ["DSA"],
-  "Design and Analysis of Algorithms": ["DSA"], 
-  "Database Management Systems": ["DBMS", "SQL", "PostgreSQL"],
-  "DBMS": ["DBMS", "SQL", "PostgreSQL"],
-  "Operating Systems": ["Operating Systems"],
-  "Computer Networks": ["Computer Networks"],
-  "Software Engineering": ["Software Engineering", "Git", "CI/CD"],
-  "Object Oriented Programming": ["OOP"],
-  "OOP with Java": ["OOP", "Java"],
-  "OOP with Python": ["OOP", "Python"],
-  "Python Programming": ["Python"],
-  "Java Programming": ["Java"],
-  "Web Technology": ["HTML", "JavaScript", "REST APIs", "CSS", "React"],
-  "Web Technologies": ["HTML", "JavaScript", "REST APIs", "CSS", "React"],
-  "Internet of Things": ["Microcontrollers"],
-  "IoT & Sensors": ["Microcontrollers"],
-  "Machine Learning": ["Machine Learning", "Python"],
-  "Deep Learning": ["Deep Learning", "TensorFlow"],
-  "Natural Language Processing": ["NLP"],
-  "Computer Vision": ["Computer Vision", "OpenCV"],
-  "Thermodynamics": ["Thermodynamics"],
-  "Applied Thermodynamics": ["Thermodynamics"],
-  "Fluid Mechanics": ["Fluid Mechanics"],
-  "Strength of Materials": ["Strength of Materials"],
-  "Manufacturing Processes": ["Manufacturing Processes"],
-  "Circuit Theory": ["Circuit Theory"],
-  "Signals and Systems": ["Signals and Systems"],
-  "Signals & Systems": ["Signals and Systems"],
-  "Digital Electronics": ["Digital Electronics"],
-  "Analog Electronics": ["Analog Electronics"],
-  "VLSI Design": ["VLSI Design"],
-  "Embedded Systems": ["Embedded C", "Microcontrollers"],
-  "Microprocessors and Microcontrollers": ["Microcontrollers", "Embedded C"],
-  "Communication Systems": ["Communication Systems"],
-  "Fundamentals of Programming": ["Python"],
-  "Problem Solving and Python": ["Python"],  
-  "Programming in Python": ["Python"],
-  "C Programming": ["C"],
-  "Data Science Fundamentals": ["Python", "Data Analysis"],
-  "Artificial Intelligence": ["Machine Learning"],
-  "Statistical Methods": ["Machine Learning"],
-  "Big Data Analytics": ["Data Analysis", "Python", "SQL"],
-  "Cloud Computing": ["AWS", "Docker"],
-  "Cloud & MLOps": ["AWS", "Docker", "Kubernetes", "CI/CD"],
-  "Cyber Security": ["Computer Networks", "Cybersecurity"],
-  "DevOps": ["Git", "Docker", "CI/CD", "Kubernetes", "AWS"],
-  "Mobile Application Development": ["JavaScript", "React Native"],
-  "Mobile Computing": ["JavaScript", "React Native"],
-}
-
-TOOL_TO_PARENT = {
-    "PostgreSQL": "Relational Databases",
-    "React": "Web Technology",
-    "Docker": "Cloud Computing",
-    "FastAPI": "Web Technology",
-    "SQL": "Relational Databases",
-    "AWS": "Cloud Computing",
-    "Kubernetes": "Cloud Computing",
-    "OpenCV": "Computer Vision",
-    "TensorFlow": "Deep Learning",
-    "React Native": "Mobile Computing"
-}
-
 
 def calculate_composite_score(resume: float, project: float, interview: float, communication: float = 0.0, is_interview_scored: bool = False) -> float:
     res_val = float(resume) if resume else 0.0
@@ -309,14 +245,8 @@ def compute_gaps_for_student(db: Session, user_id: str):
             target_roles = json.loads(target_roles)
         except Exception:
             pass
-    elif isinstance(target_roles, list) and len(target_roles) > 0 and target_roles[0] == '[' and target_roles[-1] == ']':
-        import json
-        try:
-            target_roles = json.loads("".join(target_roles))
-        except Exception:
-            pass
-            
-    if not target_roles:
+
+    if not target_roles or not isinstance(target_roles, list):
         return
         
     prof = db.query(StudentProfile).filter(StudentProfile.user_id == user_id).first()

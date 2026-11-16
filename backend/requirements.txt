@@ -6,7 +6,7 @@ psycopg2-binary==2.9.9
 pydantic==2.5.3
 pydantic-settings==2.1.0
 python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
+bcrypt==5.0.0
 python-multipart==0.0.6
 python-dotenv==1.0.0
 pandas==2.1.4
@@ -26,9 +26,6 @@ groq>=0.9.0
 pytest==7.4.3
 pytest-asyncio==0.21.1
 pytest-cov==4.1.0
-
-# Logging
-python-json-logger==2.0.7
 
 # System Metrics
 psutil==5.9.6

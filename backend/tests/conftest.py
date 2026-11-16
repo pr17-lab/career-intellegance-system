@@ -1,14 +1,13 @@
 """
 Test configuration and fixtures.
 
-Uses an in-memory SQLite database for fast, isolated tests.
+Uses a dedicated PostgreSQL test database (student_tracker_test on localhost),
+recreated and migrated with Alembic at session start.
 
 Key design decisions:
-  1. UUID shim  – SQLite doesn't understand the PostgreSQL UUID dialect, so we
-     monkey-patch its type compiler to render UUID columns as VARCHAR(36).
-  2. Table cleanup – an autouse fixture deletes all rows before every test so
+  1. Table cleanup – an autouse fixture deletes all rows before every test so
      committed data never leaks between tests.
-  3. Rate-limiter reset – slowapi counters are cleared before each test so
+  2. Rate-limiter reset – slowapi counters are cleared before each test so
      failed-login tests don't trigger the global rate limit on subsequent tests.
 """
 import uuid

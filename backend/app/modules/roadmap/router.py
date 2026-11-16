@@ -137,7 +137,7 @@ async def complete_roadmap_task(
             verify_github_complexity_async,
             req.submission_link,
             current_user.id,
-            db,
+            None,
             task.id
         )
         return {

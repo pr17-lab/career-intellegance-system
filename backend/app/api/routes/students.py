@@ -1,10 +1,10 @@
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import func
 import uuid
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.orm import Session
+from sqlalchemy import func, or_
 
-from app.core.database import get_db
+from app.api.dependencies.database import get_db
 from app.models import StudentProfile, User
 from app.schemas import (
     StudentProfileCreate,
@@ -12,13 +12,13 @@ from app.schemas import (
     StudentProfileResponse,
     StudentListResponse
 )
-
 from app.api.dependencies.auth import RequireRole
 
 router = APIRouter(dependencies=[Depends(RequireRole(['admin', 'faculty']))])
 
+
 @router.get("/students", response_model=StudentListResponse)
-async def list_students(
+def list_students(
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(20, ge=1, le=100, description="Items per page"),
     branch: Optional[str] = Query(None, description="Filter by branch"),
@@ -47,16 +47,15 @@ async def list_students(
         students=students
     )
 
+
 @router.get("/students/search", response_model=StudentListResponse)
-async def search_students(
+def search_students(
     q: str = Query(..., min_length=2, description="Search query"),
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(20, ge=1, le=100, description="Items per page"),
     db: Session = Depends(get_db)
 ):
     """Search students by name, student_id, or email."""
-    from sqlalchemy import or_
-    
     search_pattern = f"%{q}%"
     
     # Join with User table for student_id and email search
@@ -83,7 +82,7 @@ async def search_students(
 
 
 @router.get("/students/{student_id}", response_model=StudentProfileResponse)
-async def get_student(
+def get_student(
     student_id: uuid.UUID,
     db: Session = Depends(get_db)
 ):
@@ -103,8 +102,9 @@ async def get_student(
     
     return student
 
+
 @router.post("/students", response_model=StudentProfileResponse, status_code=201)
-async def create_student(
+def create_student(
     student_data: StudentProfileCreate,
     db: Session = Depends(get_db)
 ):
@@ -136,14 +136,17 @@ async def create_student(
     
     return student
 
+
 @router.put("/students/{student_id}", response_model=StudentProfileResponse)
-async def update_student(
+def update_student(
     student_id: uuid.UUID,
     student_data: StudentProfileUpdate,
     db: Session = Depends(get_db)
 ):
-    """Update student profile."""
-    student = db.query(StudentProfile).filter(StudentProfile.id == student_id).first()
+    """Update student profile (tries user_id first, then profile id)."""
+    student = db.query(StudentProfile).filter(StudentProfile.user_id == student_id).first()
+    if not student:
+        student = db.query(StudentProfile).filter(StudentProfile.id == student_id).first()
     
     if not student:
         raise HTTPException(
@@ -161,13 +164,16 @@ async def update_student(
     
     return student
 
+
 @router.delete("/students/{student_id}", status_code=204)
-async def delete_student(
+def delete_student(
     student_id: uuid.UUID,
     db: Session = Depends(get_db)
 ):
-    """Delete student profile."""
-    student = db.query(StudentProfile).filter(StudentProfile.id == student_id).first()
+    """Delete student profile (tries user_id first, then profile id)."""
+    student = db.query(StudentProfile).filter(StudentProfile.user_id == student_id).first()
+    if not student:
+        student = db.query(StudentProfile).filter(StudentProfile.id == student_id).first()
     
     if not student:
         raise HTTPException(

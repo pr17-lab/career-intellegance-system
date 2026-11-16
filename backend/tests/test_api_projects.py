@@ -144,7 +144,7 @@ async def test_verify_github_complexity_async_processing(db_session, sample_user
         else:
             return mock_repo_resp
 
-    async def mock_post(url, json=None):
+    async def mock_post(url, json=None, **kwargs):
         return mock_gemini_resp
 
     mock_client = AsyncMock()
@@ -303,7 +303,7 @@ async def test_verify_github_complexity_async_existing_skill(db_session, sample_
         else:
             return mock_repo_resp
 
-    async def mock_post(url, json=None):
+    async def mock_post(url, json=None, **kwargs):
         return mock_gemini_resp
 
     mock_client = AsyncMock()

@@ -41,10 +41,11 @@ async def lifespan(app: FastAPI):
     logger.info("Starting Student Academic Tracker API v1.0 (modular monolith)")
     
     # Verify database is seeded
-    from app.core.database import SessionLocal
-    from sqlalchemy import text
-    db = SessionLocal()
+    db = None
     try:
+        from app.core.database import SessionLocal
+        from sqlalchemy import text
+        db = SessionLocal()
         cur_tax = db.execute(text("SELECT COUNT(*) FROM skill_taxonomy")).scalar()
         cur_req = db.execute(text("SELECT COUNT(*) FROM job_skill_requirements")).scalar()
         if cur_tax == 0 or cur_req == 0:
@@ -60,7 +61,8 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.error(f"Error during startup database validation check: {e}")
     finally:
-        db.close()
+        if db is not None:
+            db.close()
         
     yield
 
@@ -107,7 +109,6 @@ app.include_router(interview_module_router,    prefix="/api/interview",    tags=
 app.include_router(skills_module_router)
 app.include_router(preferences_router,         prefix="/api/preferences",  tags=["Preferences"])
 app.include_router(roadmap_router,             prefix="/api/roadmap",      tags=["Roadmap"])
-app.include_router(roadmap_router,             prefix="/api/roadmaps",     tags=["Roadmap"])
 app.include_router(jobs_router,                prefix="/api/jobs",         tags=["Jobs"])
 
 # ---------------------------------------------------------------------------
@@ -120,5 +121,5 @@ async def root():
         "message": "Student Academic Tracker API",
         "version": "1.0.0",
         "docs": "/docs",
-        "modules": ["academic", "interview", "skills", "preferences", "roadmap"],
+        "modules": ["academic", "interview", "skills", "preferences", "roadmap", "jobs", "projects"],
     }

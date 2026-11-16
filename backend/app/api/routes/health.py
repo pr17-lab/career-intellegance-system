@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 import psutil
 import os
 
-from app.core.database import get_db
+from app.api.dependencies.database import get_db
 from app.schemas.common import HealthStatus, DetailedHealthStatus
 
 router = APIRouter()

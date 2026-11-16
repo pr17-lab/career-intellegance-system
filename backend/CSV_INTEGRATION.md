@@ -1,5 +1,7 @@
 # Student Academic Tracker - Backend CSV Integration
 
+> **STALE:** The CSV data service described here (`app/services/csv_data_service.py`) and the academic CSV datasets were removed.
+
 ## CSV Data Integration Summary
 
 The backend has been successfully integrated with CSV data sources for student information and academic records.
