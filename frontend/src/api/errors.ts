@@ -16,7 +16,9 @@ export function getErrorMessage(detail: unknown): string {
                 const loc: unknown[] = Array.isArray(item.loc) ? item.loc : [];
                 // loc looks like ["body", "email"]; use the last string segment as the field name
                 const field = [...loc].reverse().find((s) => typeof s === 'string' && s !== 'body');
-                return field ? `${field}: ${item.msg}` : item.msg;
+                // Pydantic prefixes validator errors with "Value error, "
+                const msg = item.msg.replace(/^Value error, /, '');
+                return field ? `${field}: ${msg}` : msg;
             })
             .filter(Boolean);
         if (parts.length > 0) return parts.join('; ');
