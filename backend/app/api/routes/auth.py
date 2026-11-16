@@ -8,10 +8,9 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Request, BackgroundTasks, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 
 from app.core.config import settings
+from app.core.rate_limit import limiter
 from app.core.security import verify_password, create_access_token, get_password_hash, validate_password_strength
 from app.models.user import User
 from app.models.student_profile import StudentProfile
@@ -20,7 +19,6 @@ from app.api.dependencies.auth import get_current_user
 from app.schemas.auth import Token, UserResponse, StudentRegistration, UpdateProfileRequest, ChangePasswordRequest
 
 router = APIRouter(tags=["Authentication"])
-limiter = Limiter(key_func=get_remote_address)
 
 
 # ---------------------------------------------------------------------------

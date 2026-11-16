@@ -1,5 +1,6 @@
 """Integration tests for authentication endpoints."""
 import pytest
+from app.core.rate_limit import limiter
 from app.core.security import get_password_hash
 
 def test_login_success(client, sample_user):
@@ -75,6 +76,19 @@ def test_account_lockout_after_failed_attempts(client, sample_user, db_session):
     assert last_status in blocked_statuses, (
         f"Expected a blocking status after multiple failures, got {last_status}"
     )
+
+def test_login_rate_limit_returns_detail(client):
+    """The 6th login within a minute is 429 with a readable detail."""
+    limiter.enabled = True
+    limiter.reset()
+    for _ in range(5):
+        client.post("/api/auth/login", data={"username": "NOBODY", "password": "x"})
+
+    response = client.post("/api/auth/login", data={"username": "NOBODY", "password": "x"})
+
+    assert response.status_code == 429
+    assert response.json() == {"detail": "Too many attempts. Please wait a minute and try again."}
+
 
 def test_get_current_user(client, sample_user, sample_student_profile):
     """Test getting current user details."""

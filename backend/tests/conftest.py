@@ -18,6 +18,7 @@ from sqlalchemy.pool import StaticPool
 from fastapi.testclient import TestClient
 
 from app.core.database import Base, get_db
+from app.core.rate_limit import limiter
 from app.main import app
 from app.models import (
     User, StudentProfile,
@@ -91,12 +92,7 @@ def engine():
 @pytest.fixture(autouse=True)
 def reset_rate_limiter():
     """Disable rate limiting during tests."""
-    app.state.limiter.enabled = False
-    try:
-        from app.api.routes.auth import limiter as auth_limiter
-        auth_limiter.enabled = False
-    except Exception:
-        pass
+    limiter.enabled = False
     yield
 
 
