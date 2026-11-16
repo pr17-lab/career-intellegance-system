@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    createSession, listSessions, getSession, submitAnswer, deleteSession, parseResumePdf, evaluateSession,
+    createSession, listSessions, getSession, deleteSession, parseResumePdf,
     getPracticeTopics, createPracticeTopicSession, getStudentProjects, createProjectSession
 } from '../api/interview';
 import type { InterviewSession, InterviewSessionSummary, EvaluationResult } from '../types/interview';
@@ -752,222 +752,6 @@ The AI will tailor every question to this JD.`}
     );
 }
 
-// ---------------------------------------------------------------------------
-// INTERVIEW ROOM
-// ---------------------------------------------------------------------------
-function InterviewRoom({
-    session,
-    currentIndex,
-    onAnswered,
-    onSkip,
-}: {
-    session: InterviewSession;
-    currentIndex: number;
-    onAnswered: (qId: string, answer: string, completed: boolean) => void;
-    onSkip: () => void;
-}) {
-    const question = session.questions[currentIndex];
-    const total = session.questions.length;
-
-    // Keep onSkip in a ref so the timer effect never needs it as a dependency.
-    // Without this, every skip would create a new onSkip â†’ re-trigger the timer
-    // effect with secondsLeft still at 0 â†’ immediately skip again (repeat loop).
-    const onSkipRef = useRef(onSkip);
-    useEffect(() => { onSkipRef.current = onSkip; }, [onSkip]);
-
-    // Timer
-    const [secondsLeft, setSecondsLeft] = useState(QUESTION_TIME_SEC);
-    useEffect(() => {
-        setSecondsLeft(QUESTION_TIME_SEC);
-    }, [currentIndex]);
-
-    useEffect(() => {
-        if (secondsLeft <= 0) { onSkipRef.current(); return; }
-        const t = setTimeout(() => setSecondsLeft(s => s - 1), 1000);
-        return () => clearTimeout(t);
-    }, [secondsLeft]);
-
-    // Typewriter
-    const { displayed, done } = useTypewriter(question?.question ?? '', 20);
-
-    // TTS – speak the question once the typewriter finishes.
-    // IMPORTANT: The cancel effect MUST be declared BEFORE the speak effect.
-    // React runs effects in declaration order, so cancel fires first on currentIndex
-    // change, stopping old speech. Then the speak effect sees done=false (typewriter
-    // has already reset) and does nothing. When the typewriter finishes (done=true),
-    // the speak effect fires and reads the new question exactly once.
-    const { speak, cancel } = useTTS();
-    const spokenIndexRef = useRef<number>(-1);
-    // 1. Cancel old speech + reset guard when question changes
-    useEffect(() => {
-        cancel();
-        spokenIndexRef.current = -1;
-    }, [currentIndex, cancel]);
-    // 2. Speak once the typewriter is done, guarded so it only fires once per question
-    useEffect(() => {
-        if (done && question?.question && spokenIndexRef.current !== currentIndex) {
-            spokenIndexRef.current = currentIndex;
-            speak(question.question);
-        }
-    }, [done, question?.question, currentIndex, speak]);
-
-    // Voice
-    const { supported, listening, interimText, finalText, startListening, stopListening, clearFinal } = useVoice();
-
-    const answerMutation = useMutation({
-        mutationFn: () => submitAnswer(session.id, question.id, finalText.trim()),
-        onSuccess: (data) => {
-            onAnswered(question.id, finalText.trim(), data.session_completed);
-            clearFinal();
-            stopListening();
-        },
-    });
-
-    const canSubmit = finalText.trim().length > 0 && !answerMutation.isPending;
-
-    if (!question) return null;
-
-
-
-    return (
-        <div className="min-h-[70vh] flex flex-col">
-            {/* Top bar */}
-            <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                    <span className="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
-                        {session.branch}{session.topic ? ` Â· ${session.topic}` : ''}
-                    </span>
-                    <span className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${DIFFICULTY_COLOR[question.difficulty] ?? 'text-[var(--text-secondary)]'} bg-[var(--bg-surface)] border border-[var(--border-primary)]`}>
-                        {question.difficulty}
-                    </span>
-                    <span className="text-xs text-[var(--text-tertiary)] bg-[var(--bg-surface)] border border-[var(--border-primary)] px-2.5 py-0.5 rounded-full">
-                        {question.topic}
-                    </span>
-                </div>
-                <span className="text-sm font-semibold text-[var(--text-primary)] bg-[var(--bg-surface)] border border-[var(--border-primary)] px-3 py-1 rounded-full">
-                    Q {currentIndex + 1} / {total}
-                </span>
-            </div>
-
-            {/* Progress bar */}
-            <div className="h-1 rounded-full bg-[var(--bg-surface)] mb-8 overflow-hidden">
-                <div
-                    className="h-full rounded-full bg-indigo-500 transition-all duration-500"
-                    style={{ width: `${((currentIndex) / total) * 100}%` }}
-                />
-            </div>
-
-            {/* Main card */}
-            <div className="flex-1 flex flex-col items-center justify-center gap-8">
-                {/* Question */}
-                <div className="w-full max-w-3xl rounded-2xl border border-[var(--border-primary)] bg-[var(--bg-card)] p-8">
-                    <div className="flex items-start gap-4">
-                        <div className="flex-shrink-0 h-9 w-9 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-sm font-bold">
-                            {currentIndex + 1}
-                        </div>
-                        <div className="flex-1">
-                            {renderQuestionText(displayed, done)}
-                            {done && (
-                                <button
-                                    type="button"
-                                    onClick={() => speak(question.question)}
-                                    title="Replay question"
-                                    className="mt-3 flex items-center gap-1.5 text-xs text-[var(--text-tertiary)] hover:text-indigo-400 transition"
-                                >
-                                    <Volume2 className="h-3.5 w-3.5" /> Replay question
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                    {/* Follow-up hint — shown once typewriter finishes */}
-                    {done && question.follow_up && (
-                        <div className="mt-4 flex items-start gap-2 border-t border-[var(--border-primary)] pt-4">
-                            <span className="text-xs font-semibold text-indigo-400 flex-shrink-0 mt-0.5">Follow-up:</span>
-                            <p className="text-sm text-[var(--text-secondary)] italic">{question.follow_up}</p>
-                        </div>
-                    )}
-                </div>
-
-                {/* Timer + Mic */}
-                <div className="flex flex-col items-center gap-6">
-                    <TimerRing seconds={secondsLeft} total={QUESTION_TIME_SEC} />
-
-                    <MicButton
-                        listening={listening}
-                        onStart={startListening}
-                        onStop={stopListening}
-                        supported={supported}
-                    />
-
-                    {/* Live caption */}
-                    <div className="w-full max-w-2xl min-h-[3.5rem] rounded-xl border border-[var(--border-primary)] bg-[var(--bg-page)] px-5 py-3 text-sm">
-                        {finalText ? (
-                            <p className="text-gray-800 dark:text-zinc-200">{finalText}</p>
-                        ) : interimText ? (
-                            <p className="text-indigo-400 italic">{interimText}</p>
-                        ) : (
-                            <p className="text-gray-500 dark:text-zinc-600 italic">
-                                {listening ? 'Listening... speak your answer' : 'Press Speak to record your answer'}
-                            </p>
-                        )}
-                        {listening && (
-                            <span className="inline-flex items-center gap-1 text-xs text-red-400 mt-1">
-                                <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" /> Recording
-                            </span>
-                        )}
-                    </div>
-
-                    {/* Action row */}
-                    <div className="flex items-center gap-4">
-                        <button
-                            type="button"
-                            onClick={() => {
-                                stopListening();
-                                clearFinal();
-                                onSkip();
-                            }}
-                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-gray-500 dark:text-zinc-500 hover:text-gray-700 dark:hover:text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-gray-50 dark:bg-zinc-800 text-sm font-medium transition"
-                        >
-                            <SkipForward className="h-4 w-4" /> Skip
-                        </button>
-
-                        <button
-                            id="submit-answer-btn"
-                            type="button"
-                            disabled={!canSubmit}
-                            onClick={() => {
-                                if (listening) stopListening();
-                                answerMutation.mutate();
-                            }}
-                            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition disabled:opacity-40 shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30"
-                        >
-                            <Volume2 className="h-4 w-4" />
-                            {answerMutation.isPending ? 'Saving...' : 'Submit Answer'}
-                        </button>
-
-                        {finalText && (
-                            <button
-                                type="button"
-                                onClick={() => { clearFinal(); if (listening) stopListening(); }}
-                                className="p-2 rounded-xl text-gray-500 dark:text-zinc-600 hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-50 dark:bg-zinc-800 transition"
-                                title="Clear recording"
-                            >
-                                <X className="h-4 w-4" />
-                            </button>
-                        )}
-                    </div>
-
-                    {answerMutation.isError && (
-                        <p className="text-xs text-red-400 flex items-center gap-1">
-                            <AlertCircle className="h-3.5 w-3.5" /> Failed to save. Try again.
-                        </p>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
-}
-
 function QuestionCard({ q, i }: { q: any, i: number }) {
     const [showModel, setShowModel] = useState(false);
     return (
@@ -1004,6 +788,10 @@ function QuestionCard({ q, i }: { q: any, i: number }) {
                         )}
                     </div>
                     
+                    {q.ai_score == null && q.user_answer && (
+                        <p className="pt-3 border-t border-[var(--border-primary)] text-sm text-[var(--text-tertiary)]">– Not scored</p>
+                    )}
+
                     {q.ai_score != null && (
                         <div className="pt-3 border-t border-[var(--border-primary)] space-y-3">
                             {/* Score + Verdict */}
@@ -1120,8 +908,8 @@ function formatExistingEvaluation(session: InterviewSession): EvaluationResult {
             difficulty: q.difficulty,
             follow_up: q.follow_up,
             user_answer: q.user_answer || '',
-            ai_score: Number(q.ai_score || 0),
-            ai_verdict: q.ai_verdict as any || 'Weak',
+            ai_score: q.ai_score != null ? Number(q.ai_score) : null,
+            ai_verdict: (q.ai_verdict as any) ?? null,
             ai_feedback: q.ai_feedback || '',
             model_answer: q.model_answer || '',
             mistakes: q.mistakes,
@@ -1134,23 +922,15 @@ function ResultsScreen({
     session,
     evaluationData,
     onNewInterview,
-    onEvaluate,
-    isEvaluating,
-    evaluateError,
 }: {
     session: InterviewSession;
     evaluationData: EvaluationResult | null;
     onNewInterview: () => void;
-    onEvaluate: () => void;
-    isEvaluating: boolean;
-    evaluateError: boolean;
 }) {
     const total = session.questions.length;
     const answered = session.questions.filter(q => q.user_answer).length;
     const pct = Math.round((answered / total) * 100);
-    
-    // We already have evaluationData if evaluated
-    const isEvaluated = !!evaluationData;
+    const scored = session.questions.filter(q => q.ai_score != null).length;
 
     return (
         <div className="max-w-3xl mx-auto space-y-8">
@@ -1177,25 +957,9 @@ function ResultsScreen({
                     >
                         <RotateCcw className="h-4 w-4" /> New Interview
                     </button>
-                    {!isEvaluated && (
-                        <button
-                            onClick={onEvaluate}
-                            disabled={isEvaluating}
-                            className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-white text-sm font-semibold transition disabled:opacity-50 bg-indigo-600 hover:bg-indigo-500`}
-                        >
-                            {isEvaluating ? (
-                                <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                            ) : (
-                                <Sparkles className="h-4 w-4" />
-                            )}
-                            {isEvaluating ? 'Evaluating your answers with AI...' : 'Evaluate My Answers'}
-                        </button>
-                    )}
                 </div>
-                {evaluateError && (
-                    <p className="text-sm text-red-500 dark:text-red-400 mt-3 font-medium flex items-center justify-center gap-2">
-                        <AlertCircle className="h-4 w-4" /> AI evaluation is temporarily unavailable. Try again.
-                    </p>
+                {scored < answered && (
+                    <p className="text-sm text-gray-600 dark:text-zinc-400">{scored} of {answered} answers scored</p>
                 )}
             </div>
 
@@ -1205,17 +969,7 @@ function ResultsScreen({
                     <BookOpen className="h-4 w-4" /> Session Review
                 </h3>
                 
-                {isEvaluating && (
-                    <div className="rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/50 dark:bg-indigo-900/10 p-12 flex flex-col items-center justify-center gap-4">
-                       <div className="h-10 w-10 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin" />
-                       <div className="text-center">
-                           <p className="font-medium text-indigo-900 dark:text-indigo-200">Evaluating your answers with AI...</p>
-                           <p className="text-sm text-indigo-600/70 dark:text-indigo-400/70 mt-1">This may take a few seconds</p>
-                       </div>
-                    </div>
-                )}
-                
-                {evaluationData && !isEvaluating && (
+                {evaluationData && (
                     <>
                         {/* SECTION 1 - Summary Bar */}
                         <div className="flex flex-wrap gap-3 pb-2">
@@ -1267,7 +1021,7 @@ function ResultsScreen({
                 )}
 
                 {/* Show basic question cards if not evaluated yet */}
-                {!evaluationData && !isEvaluating && (
+                {!evaluationData && (
                     <div className="space-y-4">
                         {session.questions.map((q, i) => (
                             <QuestionCard key={q.id || i} q={q} i={i} />
@@ -1556,16 +1310,18 @@ function WebSocketInterviewRoom({ sessionId, onCompleted, onGoToLobby }: WebSock
                             <div className={`h-10 w-10 shrink-0 rounded-full border-2 flex items-center justify-center font-bold text-sm ${
                                 Number(evalResult.technical_score ?? evalResult.ai_score) >= 7 ? 'border-emerald-500 text-emerald-500' : 'border-amber-500 text-amber-500'
                             }`}>
-                                {evalResult.technical_score ?? evalResult.ai_score}
+                                {evalResult.technical_score ?? evalResult.ai_score ?? '–'}
                             </div>
                             <div className="flex-1">
                                 <div className="flex items-center gap-2">
                                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                                         evalResult.verdict === 'Strong' || evalResult.ai_verdict === 'Strong' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400'
                                     }`}>
-                                        {evalResult.verdict ?? evalResult.ai_verdict ?? 'Adequate'}
+                                        {evalResult.verdict ?? evalResult.ai_verdict ?? 'Not scored'}
                                     </span>
-                                    <span className="text-[10px] text-gray-400 dark:text-zinc-500">Live calibration complete</span>
+                                    {(evalResult.technical_score ?? evalResult.ai_score) != null && (
+                                        <span className="text-[10px] text-gray-400 dark:text-zinc-500">Live calibration complete</span>
+                                    )}
                                 </div>
                                 <p className="text-xs text-gray-600 dark:text-zinc-300 mt-1 italic">"{evalResult.feedback || evalResult.ai_feedback || 'Well analyzed answer.'}"</p>
                             </div>
@@ -1777,43 +1533,6 @@ const InterviewPrep: React.FC = () => {
         onSettled: () => setDeletingId(null),
     });
 
-    // Evaluate session mutation
-    const evaluateMutation = useMutation({
-        mutationFn: () => evaluateSession(activeSessionId!),
-        onSuccess: (data) => {
-            setEvaluationData(data);
-            qc.invalidateQueries({ queryKey: ['interview-session', activeSessionId] });
-            qc.invalidateQueries({ queryKey: ['interview-sessions'] });
-        },
-    });
-
-    const handleAnswered = (qId: string, answer: string, completed: boolean) => {
-        // Persist locally so results view is accurate even before refetch
-        setLocalAnswers(prev => ({ ...prev, [qId]: answer }));
-        qc.invalidateQueries({ queryKey: ['interview-session', activeSessionId] });
-
-        const total = activeSession?.questions.length ?? 0;
-        if (completed || currentIndex >= total - 1) {
-            // Small delay so user sees the submit success
-            setTimeout(() => {
-                setPhase('results');
-                evaluateMutation.mutate();
-            }, 600);
-        } else {
-            setCurrentIndex(i => i + 1);
-        }
-    };
-
-    const handleSkip = useCallback(() => {
-        const total = activeSession?.questions.length ?? 0;
-        if (currentIndex >= total - 1) {
-            setPhase('results');
-            evaluateMutation.mutate();
-        } else {
-            setCurrentIndex(i => i + 1);
-        }
-    }, [activeSession, currentIndex, evaluateMutation]);
-
     const handleSelectSession = (id: string) => {
         setActiveSessionId(id);
         setCurrentIndex(0);
@@ -1874,9 +1593,6 @@ const InterviewPrep: React.FC = () => {
                         session={mergedSession}
                         evaluationData={evaluationData}
                         onNewInterview={handleNewInterview}
-                        onEvaluate={() => evaluateMutation.mutate()}
-                        isEvaluating={evaluateMutation.isPending}
-                        evaluateError={evaluateMutation.isError}
                     />
                 )}
             </div>

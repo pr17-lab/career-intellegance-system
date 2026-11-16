@@ -10,7 +10,6 @@ GET  /api/interview/questions               — generate questions (ML or built-
 GET  /api/interview/sessions                — list past sessions
 POST /api/interview/sessions               — start + persist a new session
 GET  /api/interview/sessions/{id}          — get session with all questions
-POST /api/interview/sessions/{id}/answer   — submit answer; advances lifecycle
 GET  /api/interview/health                 — module health probe
 """
 from __future__ import annotations
@@ -28,10 +27,8 @@ from app.core.database import get_db
 from app.api.dependencies.auth import get_current_user
 from app.models.user import User
 from app.modules.academic.service import AcademicService
-from app.modules.interview.service import interview_service as _interview_svc
+from app.modules.interview.service import interview_service as _interview_svc, extract_weak_skills
 from app.schemas.interview import (
-    AnswerSubmitRequest,
-    AnswerSubmitResponse,
     GeneratedQuestionsResponse,
     InterviewSessionOut,
     SessionCreateRequest,
@@ -245,43 +242,6 @@ async def get_session(
         raise HTTPException(status_code=404, detail="Session not found")
     return session
 
-
-@router.post("/sessions/{session_id}/answer", response_model=AnswerSubmitResponse)
-async def submit_answer(
-    session_id: uuid.UUID,
-    body: AnswerSubmitRequest,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """
-    Submit a student's answer for a question.
-    When all questions in the session are answered, status advances to 'completed'.
-    """
-    question, session_completed = _interview_svc.submit_answer(
-        db,
-        session_id=session_id,
-        question_id=body.question_id,
-        user_id=current_user.id,
-        answer=body.answer,
-    )
-    return AnswerSubmitResponse(
-        id=question.id,
-        question=question.question,
-        user_answer=question.user_answer,
-        session_completed=session_completed,
-    )
-
-@router.post("/sessions/{session_id}/evaluate")
-async def evaluate_session(
-    session_id: uuid.UUID,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    """
-    Evaluate all answered questions via Groq AI.
-    Assigns scores, verdicts, model answers, and concise feedback.
-    """
-    return await _interview_svc.evaluate_session(db, session_id, current_user.id)
 
 @router.delete("/sessions/{session_id}", status_code=204)
 async def delete_session(
@@ -656,6 +616,22 @@ async def websocket_interview(
                                         "message": "All interview questions answered. Session completed."
                                     }
                                 })
+
+                                # After the client is told, so a slow or failing roadmap update never blocks it.
+                                try:
+                                    from app.models.skill_taxonomy import SkillTaxonomy
+                                    from app.modules.roadmap.service import get_active_roadmap, update_roadmap_with_weak_skills
+                                    weak_skills = extract_weak_skills(session.questions)
+                                    if weak_skills and session.associated_skill_id and not session.project_id:
+                                        # Topic and micro sessions are about one skill, whatever topic text the LLM wrote.
+                                        own_skill = db.query(SkillTaxonomy).filter(SkillTaxonomy.id == session.associated_skill_id).first()
+                                        weak_skills = [own_skill.skill_name]
+                                    roadmap = get_active_roadmap(db, user.id)
+                                    if roadmap and weak_skills:
+                                        await update_roadmap_with_weak_skills(db, roadmap, weak_skills)
+                                except Exception as e:
+                                    db.rollback()
+                                    logger.error("Failed to update roadmap with weak skills: %s", e)
                     except Exception as e:
                         logger.error("Error submitting answer in WebSocket: %s", e)
                         await websocket.send_json({

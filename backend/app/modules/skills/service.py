@@ -3,6 +3,8 @@ Skills service — student skill retrieval, gap analysis, career recommendations
 taxonomy search, and manual skill management.
 """
 
+import logging
+
 import sqlalchemy as sa
 from sqlalchemy.orm import Session
 from uuid import UUID
@@ -13,6 +15,8 @@ from app.models.skill_taxonomy import SkillTaxonomy
 from app.models.skill_gap import SkillGap
 from app.utils.academic import score_to_level
 from .schemas import SkillResponse, SkillGapResponse, StudentSkillSummary
+
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -252,6 +256,31 @@ def search_taxonomy(db: Session, query: str) -> list[SkillTaxonomy]:
         .limit(5)
         .all()
     )
+
+
+def find_skill_by_topic(db: Session, topic: str) -> SkillTaxonomy | None:
+    """
+    Exact, case-insensitive match. A skill name always wins; otherwise the topic must be
+    an alias of exactly one skill. No match, or an alias shared by several skills, logs a
+    warning and returns None.
+    """
+    wanted = topic.strip().lower()
+    skill = db.query(SkillTaxonomy).filter(sa.func.lower(SkillTaxonomy.skill_name) == wanted).first()
+    if skill:
+        return skill
+
+    by_alias = [
+        candidate
+        for candidate in db.query(SkillTaxonomy).filter(SkillTaxonomy.aliases.isnot(None))
+        if any(str(alias).strip().lower() == wanted for alias in candidate.aliases)
+    ]
+    if len(by_alias) == 1:
+        return by_alias[0]
+    if by_alias:
+        logger.warning("Topic %r is an alias of several skills: %s", topic, [s.skill_name for s in by_alias])
+    else:
+        logger.warning("No skill matches topic %r", topic)
+    return None
 
 
 def add_manual_skill(db: Session, user_id: UUID, skill_name: str, confidence_score: float) -> SkillResponse:
