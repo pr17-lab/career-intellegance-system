@@ -11,67 +11,6 @@ from app.models.skill_taxonomy import SkillTaxonomy
 from app.models.student_skill import StudentSkill
 
 
-@pytest.fixture
-def sample_roadmap_and_tasks(db_session, sample_user):
-    """Fixture to seed a sample active roadmap and tasks."""
-    # Seed a SkillTaxonomy tool
-    skill = db_session.query(SkillTaxonomy).filter(SkillTaxonomy.skill_name == "FastAPI").first()
-    if not skill:
-        skill = SkillTaxonomy(
-            id=uuid.uuid4(),
-            skill_name="FastAPI",
-            category="backend",
-            skill_type="tool"
-        )
-        db_session.add(skill)
-        db_session.commit()
-        db_session.refresh(skill)
-
-    roadmap = Roadmap(
-        id=uuid.uuid4(),
-        user_id=sample_user.id,
-        job_role="Backend Engineer",
-        status="active",
-        total_tasks=3,
-        completed_tasks=0
-    )
-    db_session.add(roadmap)
-    db_session.commit()
-
-    task_learn = RoadmapTask(
-        id=uuid.uuid4(),
-        roadmap_id=roadmap.id,
-        skill_id=skill.id,
-        associated_skill_id=skill.id,
-        phase="learn",
-        task_type="learn",
-        title="Learn FastAPI",
-        estimated_hours=5,
-        order_index=1,
-        status="pending"
-    )
-
-    task_apply = RoadmapTask(
-        id=uuid.uuid4(),
-        roadmap_id=roadmap.id,
-        skill_id=skill.id,
-        associated_skill_id=skill.id,
-        phase="apply",
-        task_type="apply",
-        title="Apply FastAPI",
-        estimated_hours=12,
-        order_index=3,
-        status="pending"
-    )
-
-    db_session.add_all([task_learn, task_apply])
-    db_session.commit()
-    db_session.refresh(task_learn)
-    db_session.refresh(task_apply)
-
-    return roadmap, task_learn, task_apply, skill
-
-
 def test_complete_task_unauthorized(client):
     """Test that unauthorized requests are rejected."""
     task_id = uuid.uuid4()
