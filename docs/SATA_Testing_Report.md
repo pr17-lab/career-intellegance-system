@@ -1,4 +1,6 @@
 # Software Testing Report
+
+> **STALE:** Test report for the previous academic-records product; not updated for the current app.
 **Project Name:** Student Academic Tracking & Analytics (SATA) System  
 **Document Type:** System Testing Report  
 **Date:** May 4, 2026  

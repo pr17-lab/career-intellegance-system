@@ -19,6 +19,8 @@ A comprehensive full-stack web application for managing and analyzing student ac
 - **Password Hashing**: Bcrypt-based password security
 
 ### Advanced Analytics
+
+> **STALE:** This feature set (GPA, semester and subject analytics) was removed. See the Skills, Roadmap and Interview modules.
 - **GPA Calculation**: Automatic GPA computation on 10.0 scale with conversion utilities
 - **Semester Trends**: Track academic performance across multiple semesters
 - **Comparative Analysis**: Benchmark against class averages and historical data
@@ -165,6 +167,8 @@ Frontend will be available at `http://localhost:5173`
 
 ## 📊 Data Import & Management
 
+> **STALE:** CSV import scripts and academic-record imports no longer exist. Seed data comes from `backend/scripts/` (taxonomy, job requirements, learning resources).
+
 ### CSV Import Scripts
 
 #### Import Student Profiles
@@ -206,6 +210,8 @@ python simulate_login.py
 ```
 
 ### Frontend (Not yet implemented)
+
+> **STALE:** The frontend is implemented (React, Vite, TypeScript); this note is out of date.
 ```bash
 cd frontend
 npm run test
@@ -284,15 +290,21 @@ CORS_ORIGINS=http://localhost:3000,http://localhost:5173
 - `GET /api/auth/me` - Get current user info
 
 ### Profile
+
+> **STALE:** these endpoints do not exist in the current backend.
 - `GET /api/profile` - Get student profile
 - `PUT /api/profile` - Update student profile
 
 ### Academic Records
+
+> **STALE:** these endpoints do not exist in the current backend.
 - `GET /api/academic/terms` - Get all academic terms
 - `GET /api/academic/terms/{term_id}` - Get specific term
 - `GET /api/academic/subjects` - Get all subjects
 
 ### Analytics
+
+> **STALE:** these endpoints do not exist in the current backend.
 - `GET /api/analytics/gpa-trend` - GPA trends over semesters
 - `GET /api/analytics/subject-performance` - Subject-wise analytics
 - `GET /api/analytics/weak-strong-subjects` - Performance analysis

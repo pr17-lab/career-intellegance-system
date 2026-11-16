@@ -1,5 +1,7 @@
 # Student Academic Tracker - Backend
 
+> **STALE:** The analytics, academic-record and CSV endpoints and datasets listed below no longer exist.
+
 ## Overview
 FastAPI backend for the Student Academic Tracker application.
 

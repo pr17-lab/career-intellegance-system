@@ -1,5 +1,7 @@
 # CSV Data Files
 
+> **STALE:** The academic-records CSV described here was removed from the repository.
+
 This directory contains CSV datasets used by the Student Academic Tracker application.
 
 ## Files
