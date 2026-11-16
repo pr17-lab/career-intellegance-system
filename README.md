@@ -2,6 +2,8 @@
 
 A comprehensive full-stack web application for managing and analyzing student academic performance. Built with FastAPI backend and React frontend, this system provides real-time analytics, GPA tracking, and performance insights for educational institutions.
 
+> All seed and test data in this repository is synthetic.
+
 ## 🎯 Features
 
 ### Student Dashboard

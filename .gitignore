@@ -85,3 +85,13 @@ SATA_DISCOVERY_REPORT.md
 WORKTREE_TRIAGE.md
 CLEANUP_MANIFEST.md
 .sata_agent_state.md
+
+# Never re-add logs, dumps, backups, outputs or credential files
+logs/
+backups/
+*.dump
+*.log
+student_passwords*.csv
+user_credentials*.csv
+data/*.sql
+backend/scripts/*.txt
