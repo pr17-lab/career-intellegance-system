@@ -8,6 +8,8 @@ import {
   ChevronRight, ChevronLeft, AlertCircle, Loader2, Plus, X
 } from 'lucide-react';
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const DEPARTMENTS = ["CSE", "ECE", "AIML", "MECH", "AI&ML"];
 const DOMAINS = ["Software", "Hardware", "UI/UX", "AI/ML", "Data", "Embedded systems", "Mechanical", "Manufacturing", "Automotive"];
 const TARGET_ROLES = [
@@ -23,6 +25,7 @@ export default function Register() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [emailError, setEmailError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -58,9 +61,14 @@ export default function Register() {
 
   const validateStep = () => {
     setError('');
+    setEmailError('');
     if (step === 1) {
       if (!formData.fullName || !formData.email || !formData.password || !formData.department) {
         setError('Please fill in all required fields.');
+        return false;
+      }
+      if (!EMAIL_RE.test(formData.email.trim())) {
+        setEmailError('Enter a valid email address, e.g. jane@example.com.');
         return false;
       }
       if (formData.password.length < 8) {
@@ -145,7 +153,8 @@ export default function Register() {
       </div>
       <div>
         <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wide" style={{ color: 'var(--text-secondary)' }}>Email Address</label>
-        <input type="email" className="w-full p-2.5 rounded-xl text-sm transition-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-primary)', color: 'var(--text-primary)', outline: 'none' }} value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="jane@example.com" />
+        <input type="email" className="w-full p-2.5 rounded-xl text-sm transition-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-primary)', color: 'var(--text-primary)', outline: 'none' }} value={formData.email} onChange={e => { setFormData({...formData, email: e.target.value}); if (emailError) setEmailError(''); }} placeholder="jane@example.com" aria-invalid={!!emailError} aria-describedby={emailError ? 'email-error' : undefined} />
+        {emailError && <p id="email-error" className="mt-1.5 text-xs" style={{ color: '#f87171' }}>{emailError}</p>}
       </div>
       <div className="flex gap-4">
         <div className="w-1/2">

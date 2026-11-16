@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getErrorMessage } from '../api/errors';
 
 interface User {
     id: string;
@@ -73,7 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 const text = await response.text();
                 if (text) {
                     const data = JSON.parse(text);
-                    errorMessage = data.detail || data.message || errorMessage;
+                    errorMessage = data.detail !== undefined ? getErrorMessage(data.detail) : data.message || errorMessage;
                 } else {
                     errorMessage = `Server response empty (${response.status}). The server may be starting up.`;
                 }

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getErrorMessage } from './errors';
 
 // Create axios instance with base configuration
 const api = axios.create({
@@ -22,7 +23,10 @@ api.interceptors.response.use(
             return Promise.reject(new Error('Session expired. Please log in again.'));
         }
         // Standardize error format
-        const message = error.response?.data?.detail || error.message || 'An unknown error occurred';
+        const detail = error.response?.data?.detail;
+        const message = detail !== undefined
+            ? getErrorMessage(detail)
+            : error.message || 'An unknown error occurred';
         console.error('API Error:', message);
         return Promise.reject(new Error(message));
     }
