@@ -18,7 +18,6 @@ from app.models.student_profile import StudentProfile
 from app.api.dependencies.database import get_db
 from app.api.dependencies.auth import get_current_user
 from app.schemas.auth import Token, UserResponse, StudentRegistration, UpdateProfileRequest, ChangePasswordRequest
-from app.utils.academic import calculate_grade, calculate_grade_points
 
 router = APIRouter(tags=["Authentication"])
 limiter = Limiter(key_func=get_remote_address)
