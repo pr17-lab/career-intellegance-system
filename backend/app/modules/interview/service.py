@@ -27,7 +27,7 @@ from uuid import UUID
 
 import httpx
 from fastapi import HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import desc
 
@@ -108,6 +108,7 @@ def _strip_json_fences(raw: str) -> str:
 
 class GradingResult(BaseModel):
     """The only reply shape we accept from the grading model."""
+    model_config = ConfigDict(protected_namespaces=())  # allows the field name model_answer
     technical_score: int = Field(strict=True, ge=0, le=10)
     communication_score: int = Field(strict=True, ge=0, le=10)
     feedback: str
@@ -1056,64 +1057,6 @@ Return ONLY a valid JSON object matching this schema exactly:
             .first()
         )
 
-    # ------------------------------------------------------------------
-    # Answer submission + lifecycle
-    # ------------------------------------------------------------------
-
-    def submit_answer(
-        self,
-        db: Session,
-        session_id: uuid.UUID,
-        question_id: uuid.UUID,
-        user_id: uuid.UUID,
-        answer: str,
-    ) -> tuple[InterviewQuestion, bool]:
-        """
-        Persist the student's answer and advance the session lifecycle.
-
-        Returns (question, session_completed) — session_completed is True
-        when the session just transitioned to 'completed'.
-        Raises HTTP 404 if the question is not found or belongs to another user.
-        """
-        question = (
-            db.query(InterviewQuestion)
-            .join(InterviewSession)
-            .filter(
-                InterviewQuestion.id == question_id,
-                InterviewSession.id == session_id,
-                InterviewSession.user_id == user_id,
-            )
-            .first()
-        )
-        if not question:
-            raise HTTPException(status_code=404, detail="Question not found")
-
-        question.user_answer = answer
-
-        session_completed = False
-        sibling_questions = (
-            db.query(InterviewQuestion)
-            .filter(InterviewQuestion.session_id == session_id)
-            .all()
-        )
-        all_answered = all(
-            (q.user_answer is not None and q.user_answer.strip())
-            for q in sibling_questions
-            if q.id != question_id
-        )
-        if all_answered and answer.strip():
-            session = db.query(InterviewSession).filter(
-                InterviewSession.id == session_id
-            ).first()
-            if session and session.status == SessionStatus.ACTIVE:
-                session.status = SessionStatus.COMPLETED
-                session_completed = True
-                logger.info("Session %s marked as completed", session_id)
-
-        db.commit()
-        db.refresh(question)
-        return question, session_completed
-
     def delete_session(
         self,
         db: Session,
@@ -1139,215 +1082,6 @@ Return ONLY a valid JSON object matching this schema exactly:
     # ------------------------------------------------------------------
     # AI answer evaluation
     # ------------------------------------------------------------------
-
-    async def evaluate_session(
-        self,
-        db: Session,
-        session_id: UUID,
-        user_id: UUID,
-    ) -> dict:
-        """
-        Evaluate all answered questions in a completed session using Groq → Gemini.
-        Returns a structured result dict with per-question scores and an overall verdict.
-        """
-        session = db.query(InterviewSession).filter(
-            InterviewSession.id == session_id,
-            InterviewSession.user_id == user_id,
-        ).first()
-        if not session:
-            raise HTTPException(404, "Session not found")
-        # Mark session as completed since evaluation is requested
-        if session.status != SessionStatus.COMPLETED:
-            session.status = SessionStatus.COMPLETED
-
-        questions = db.query(InterviewQuestion).filter(
-            InterviewQuestion.session_id == session_id,
-        ).all()
-        if not questions:
-            raise HTTPException(400, "No questions found in this session")
-
-        qa_text = "\n".join(
-            f"Q{i}: {q.question}\nStudent Answer: {q.user_answer if q.user_answer and q.user_answer.strip() else 'skipped'}\nDifficulty: {q.difficulty}\n---"
-            for i, q in enumerate(questions, 1)
-        )
-
-        eval_prompt = f"""You are a senior technical interviewer evaluating a student's mock interview answers.
-
-Evaluate each answer and return ONLY a valid JSON array.
-
-Format:
-[
-  {{
-    "question_index": 1,
-    "technical_score": 7,
-    "communication_score": 8,
-    "verdict": "Adequate",
-    "feedback": "...",
-    "model_answer": "...",
-    "mistakes": ["...", "..."],
-    "improvement": "..."
-  }}
-]
-
-Rules:
-- technical_score: integer from 1 to 10 evaluating technical accuracy
-- communication_score: integer from 1 to 10 evaluating clarity and communication skills
-- verdict:
-    Strong (technical_score >= 8), Adequate (technical_score >= 5), Weak (technical_score <= 4)
-
-- feedback:
-    1-2 sentences explaining overall quality of the answer
-
-- mistakes:
-    Identify EXACT issues such as:
-    - Missing key concept
-    - Incorrect explanation
-    - Lack of example
-    - Poor structure
-    - Too vague
-
-- improvement:
-    Give a clear, actionable suggestion on how the student can improve their answer
-
-- model_answer:
-    Provide a concise (2-3 sentences) ideal answer
-
-- Keep feedback specific and practical (avoid generic comments)
-
-- If the question is skipped:
-    technical_score = 0
-    communication_score = 0
-    verdict = "Weak"
-    feedback = "Question was skipped."
-    mistakes = ["No answer provided"]
-    improvement = "Attempt the question by covering key concepts."
-
-Now evaluate the following:
-
-{qa_text}
-
-Return ONLY the JSON array. No other text."""
-
-        evaluations = None
-
-        # --- Gemini ---
-        try:
-            if not settings.GEMINI_API_KEY:
-                raise ValueError("GEMINI_API_KEY not configured")
-            url = (
-                f"https://generativelanguage.googleapis.com/v1beta/models/"
-                f"{settings.GEMINI_MODEL}:generateContent"
-            )
-            payload = {
-                "contents": [{"parts": [{"text": eval_prompt}]}],
-                "generationConfig": {"temperature": 0.3, "response_mime_type": "application/json"},
-            }
-            async with httpx.AsyncClient(timeout=90.0) as client_http:
-                resp = await client_http.post(url, json=payload, headers=_gemini_headers())
-                resp.raise_for_status()
-                raw = resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
-                evaluations = json.loads(_strip_json_fences(raw))
-        except Exception as e:
-            logger.warning("Gemini evaluation failed: %s — trying Groq as fallback.", e)
-
-        # --- Groq fallback ---
-        if not evaluations:
-            try:
-                from groq import Groq
-                client = Groq(api_key=settings.GROQ_API_KEY)
-                response = client.chat.completions.create(
-                    model=settings.GROQ_MODEL,
-                    messages=[{"role": "user", "content": eval_prompt}],
-                    temperature=0.3,
-                    max_tokens=4000,
-                )
-                evaluations = json.loads(_strip_json_fences((response.choices[0].message.content or "").strip()))
-            except Exception as e:
-                logger.error("Groq evaluation error: %s", e)
-                raise HTTPException(
-                    503,
-                    f"AI evaluation unavailable: {e}. Please try again in a moment.",
-                )
-
-        # --- Write results back to DB ---
-        now = datetime.now(timezone.utc)
-        comm_scores = []
-        for eval_item in evaluations:
-            idx = eval_item.get("question_index", 1) - 1
-            if not 0 <= idx < len(questions):
-                continue
-            q = questions[idx]
-            tech_score = eval_item.get("technical_score", eval_item.get("score", 0))
-            comm_score = eval_item.get("communication_score", 0)
-            comm_scores.append(comm_score)
-            
-            q.ai_score = tech_score
-            q.ai_verdict = eval_item.get("verdict")
-            q.ai_feedback = eval_item.get("feedback")
-            q.model_answer = eval_item.get("model_answer")
-            q.mistakes = eval_item.get("mistakes", [])
-            q.improvement = eval_item.get("improvement")
-            q.evaluated_at = now
-
-        db.commit()
-        
-        avg_comm = sum(comm_scores) / len(comm_scores) if comm_scores else 0.0
-
-        # ------------------------------------------------------------------
-        # Post-evaluation: extract weak skills (zero LLM calls)
-        # ------------------------------------------------------------------
-        weak_skills = extract_weak_skills(questions)
-        _update_skill_weights(db, user_id, questions, avg_comm)
-
-        # ------------------------------------------------------------------
-        # Post-evaluation: roadmap trigger (zero LLM calls)
-        # ------------------------------------------------------------------
-        if weak_skills:
-            try:
-                from app.modules.roadmap.service import get_active_roadmap, update_roadmap_with_weak_skills, generate_roadmap
-                roadmap = get_active_roadmap(db, user_id)
-                if roadmap:
-                    await update_roadmap_with_weak_skills(db, roadmap, weak_skills)
-                    logger.info("Roadmap updated with weak skills for user %s", user_id)
-                else:
-                    from app.modules.skills.service import get_career_recommendation
-                    rec = get_career_recommendation(db, user_id)
-                    job_role = rec.get("primary", {}).get("job_role") if rec.get("primary") else None
-                    if job_role:
-                        await generate_roadmap(db, user_id, job_role)
-                        logger.info("New roadmap generated for user %s", user_id)
-            except Exception as e:
-                logger.error("Failed to trigger roadmap update: %s", e)
-
-        results = [
-            {
-                "question_id": str(q.id),
-                "question": q.question,
-                "topic": q.topic,
-                "difficulty": q.difficulty,
-                "user_answer": q.user_answer,
-                "ai_score": q.ai_score,
-                "ai_verdict": q.ai_verdict,
-                "ai_feedback": q.ai_feedback,
-                "model_answer": q.model_answer,
-                "mistakes": q.mistakes or [],
-                "improvement": q.improvement,
-            }
-            for q in questions
-        ]
-
-        avg_score = sum(r["ai_score"] or 0 for r in results) / len(results) if results else 0
-        return {
-            "session_id": str(session_id),
-            "total_questions": len(results),
-            "avg_score": round(avg_score, 1),
-            "strong_count": sum(1 for r in results if r["ai_verdict"] == "Strong"),
-            "adequate_count": sum(1 for r in results if r["ai_verdict"] == "Adequate"),
-            "weak_count": sum(1 for r in results if r["ai_verdict"] == "Weak"),
-            "overall_verdict": "Strong" if avg_score >= 7 else "Adequate" if avg_score >= 4 else "Needs Improvement",
-            "weak_skills": weak_skills,
-            "questions": results,
-        }
 
     def _grading_message(self, db: Session, question: InterviewQuestion, user_answer: str, user_id: uuid.UUID) -> str:
         session = question.session
