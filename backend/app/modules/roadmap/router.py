@@ -48,9 +48,7 @@ async def complete_roadmap_task(
     current_user: User = Depends(get_current_user)
 ):
     """Mark a task as completed and optionally leave feedback or trigger validation for apply tasks"""
-    task = db.query(RoadmapTask).filter(RoadmapTask.id == task_id).first()
-    if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
+    task = service.get_owned_task_or_404(db, task_id, current_user.id)
 
     if task.phase == "apply":
         if task.associated_skill_id:
@@ -209,9 +207,7 @@ def vote_roadmap_task_resource(
     current_user: User = Depends(get_current_user)
 ):
     """Upvote or downvote the learning resource of a roadmap task"""
-    task = db.query(RoadmapTask).filter(RoadmapTask.id == task_id).first()
-    if not task:
-        raise HTTPException(status_code=404, detail="Roadmap task not found")
+    task = service.get_owned_task_or_404(db, task_id, current_user.id)
     if not task.resource_url:
         raise HTTPException(status_code=400, detail="This task does not have an associated resource URL to vote on")
 

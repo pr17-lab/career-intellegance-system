@@ -1,12 +1,12 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
+from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
 
 from app.core.config import settings
+from app.core.rate_limit import limiter
 from app.core.logging import setup_logging
 from app.middleware.logging import log_requests
 
@@ -28,9 +28,14 @@ setup_logging(level="INFO" if not settings.DEBUG else "DEBUG")
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Rate limiter
+# Rate limit response
 # ---------------------------------------------------------------------------
-limiter = Limiter(key_func=get_remote_address)
+async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    # "detail" matches HTTPException responses, which the frontend reads
+    return JSONResponse(
+        status_code=429,
+        content={"detail": "Too many attempts. Please wait a minute and try again."},
+    )
 
 # ---------------------------------------------------------------------------
 # Lifespan (replaces deprecated @app.on_event)
@@ -85,7 +90,7 @@ app = FastAPI(
 # Middleware (CORS, rate limiting, request logging)
 # ---------------------------------------------------------------------------
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_exception_handler(RateLimitExceeded, rate_limit_handler)
 
 app.middleware("http")(log_requests)
 

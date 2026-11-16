@@ -18,6 +18,7 @@ from sqlalchemy.pool import StaticPool
 from fastapi.testclient import TestClient
 
 from app.core.database import Base, get_db
+from app.core.rate_limit import limiter
 from app.main import app
 from app.models import (
     User, StudentProfile,
@@ -91,12 +92,7 @@ def engine():
 @pytest.fixture(autouse=True)
 def reset_rate_limiter():
     """Disable rate limiting during tests."""
-    app.state.limiter.enabled = False
-    try:
-        from app.api.routes.auth import limiter as auth_limiter
-        auth_limiter.enabled = False
-    except Exception:
-        pass
+    limiter.enabled = False
     yield
 
 
@@ -226,3 +222,122 @@ def sample_interview_session(db_session, sample_user):
     db_session.commit()
     db_session.refresh(session)
     return session
+
+
+@pytest.fixture
+def sample_roadmap_and_tasks(db_session, sample_user):
+    """Fixture to seed a sample active roadmap and tasks."""
+    import uuid
+    from app.models.roadmap import Roadmap, RoadmapTask
+    from app.models.skill_taxonomy import SkillTaxonomy
+    # Seed a SkillTaxonomy tool
+    skill = db_session.query(SkillTaxonomy).filter(SkillTaxonomy.skill_name == "FastAPI").first()
+    if not skill:
+        skill = SkillTaxonomy(
+            id=uuid.uuid4(),
+            skill_name="FastAPI",
+            category="backend",
+            skill_type="tool"
+        )
+        db_session.add(skill)
+        db_session.commit()
+        db_session.refresh(skill)
+
+    roadmap = Roadmap(
+        id=uuid.uuid4(),
+        user_id=sample_user.id,
+        job_role="Backend Engineer",
+        status="active",
+        total_tasks=3,
+        completed_tasks=0
+    )
+    db_session.add(roadmap)
+    db_session.commit()
+
+    task_learn = RoadmapTask(
+        id=uuid.uuid4(),
+        roadmap_id=roadmap.id,
+        skill_id=skill.id,
+        associated_skill_id=skill.id,
+        phase="learn",
+        task_type="learn",
+        title="Learn FastAPI",
+        estimated_hours=5,
+        order_index=1,
+        status="pending"
+    )
+
+    task_apply = RoadmapTask(
+        id=uuid.uuid4(),
+        roadmap_id=roadmap.id,
+        skill_id=skill.id,
+        associated_skill_id=skill.id,
+        phase="apply",
+        task_type="apply",
+        title="Apply FastAPI",
+        estimated_hours=12,
+        order_index=3,
+        status="pending"
+    )
+
+    db_session.add_all([task_learn, task_apply])
+    db_session.commit()
+    db_session.refresh(task_learn)
+    db_session.refresh(task_apply)
+
+    return roadmap, task_learn, task_apply, skill
+
+
+# ---------------------------------------------------------------------------
+# 7. Second, NON-admin user (for cross-user ownership tests)
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def other_user(db_session):
+    """User B: role=student (sample_user is an admin)."""
+    from app.models.user import UserRole
+    user = User(
+        student_id="TEST002",
+        email="other@example.com",
+        password_hash=get_password_hash("Other@123"),
+        is_active=True,
+        failed_login_attempts=0,
+        role=UserRole.student,
+    )
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
+
+
+@pytest.fixture
+def other_student_profile(db_session, other_user):
+    profile = StudentProfile(
+        user_id=other_user.id,
+        name="Other Student",
+        department="CSE",
+        semester=3,
+        interests="Testing",
+    )
+    db_session.add(profile)
+    db_session.commit()
+    db_session.refresh(profile)
+    return profile
+
+
+@pytest.fixture
+def other_auth_client(client, other_user):
+    """Authenticated client for user B.
+
+    Uses its own TestClient (separate cookie jar) so it can be used in the
+    same test as ``auth_client`` (user A). Depends on ``client`` only so the
+    get_db override is installed.
+    """
+    tc = TestClient(app)
+    resp = tc.post(
+        "/api/auth/login",
+        data={"username": "TEST002", "password": "Other@123"},
+    )
+    assert resp.status_code == 200, f"other_auth_client login failed: {resp.json()}"
+    tc.cookies.set("access_token", resp.cookies.get("access_token"))
+    return tc

@@ -112,8 +112,14 @@ export default function Register() {
       if (res.data.student_id || res.data.id) {
         // use student_id or email for login
         const loginId = res.data.student_id || res.data.email;
-        await login(loginId, formData.password);
-        
+        try {
+          await login(loginId, formData.password);
+        } catch {
+          // Account exists, so don't show an error on the wizard
+          navigate('/login', { state: { message: 'Account created. Please log in.' } });
+          return;
+        }
+
         // POST Preferences (will use token from login)
         try {
           await api.post('/preferences', {

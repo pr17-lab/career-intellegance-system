@@ -46,13 +46,6 @@ export interface GeneratedQuestionsResponse {
     source: string;
 }
 
-export interface AnswerSubmitResponse {
-    id: string;
-    question: string;
-    user_answer: string;
-    session_completed: boolean;
-}
-
 export interface QuestionEvaluation {
     question_id: string;
     question: string;
@@ -60,8 +53,8 @@ export interface QuestionEvaluation {
     difficulty: string;
     follow_up?: string;
     user_answer: string;
-    ai_score: number;
-    ai_verdict: 'Strong' | 'Adequate' | 'Weak';
+    ai_score: number | null;
+    ai_verdict: 'Strong' | 'Adequate' | 'Weak' | null;
     ai_feedback: string;
     model_answer: string;
     mistakes?: string[];

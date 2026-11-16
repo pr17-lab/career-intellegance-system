@@ -1,5 +1,6 @@
 """Integration tests for authentication endpoints."""
 import pytest
+from app.core.rate_limit import limiter
 from app.core.security import get_password_hash
 
 def test_login_success(client, sample_user):
@@ -76,6 +77,19 @@ def test_account_lockout_after_failed_attempts(client, sample_user, db_session):
         f"Expected a blocking status after multiple failures, got {last_status}"
     )
 
+def test_login_rate_limit_returns_detail(client):
+    """The 6th login within a minute is 429 with a readable detail."""
+    limiter.enabled = True
+    limiter.reset()
+    for _ in range(5):
+        client.post("/api/auth/login", data={"username": "NOBODY", "password": "x"})
+
+    response = client.post("/api/auth/login", data={"username": "NOBODY", "password": "x"})
+
+    assert response.status_code == 429
+    assert response.json() == {"detail": "Too many attempts. Please wait a minute and try again."}
+
+
 def test_get_current_user(client, sample_user, sample_student_profile):
     """Test getting current user details."""
     # Login
@@ -135,6 +149,17 @@ def test_register_rejects_password_over_72_bytes(client, password):
     response = client.post("/api/auth/register", json=_register_payload(password))
     assert response.status_code == 422
     assert "72 bytes" in response.text
+
+
+def test_register_over_72_bytes_error_message(client):
+    response = client.post("/api/auth/register", json=_register_payload(LONG_ASCII))
+    assert response.status_code == 422
+    error = response.json()["detail"][0]
+    assert error["loc"] == ["body", "password"]
+    assert error["msg"] == (
+        "Value error, Password must be at most 72 bytes when encoded as UTF-8 "
+        "(fewer characters if it contains emoji or non-ASCII letters)."
+    )
 
 
 @pytest.mark.parametrize("password", [LONG_ASCII, LONG_EMOJI], ids=["73-ascii", "40-emoji"])

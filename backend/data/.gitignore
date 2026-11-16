@@ -5,3 +5,6 @@
 # Temporary files
 *.tmp
 *.bak
+
+!skill_taxonomy.csv
+!job_skill_requirements.csv

@@ -14,6 +14,7 @@ from app.models.learning_resource import LearningResource
 from app.models.student_skill import StudentSkill
 from app.utils.academic import score_to_level
 from app.modules.skills.engine import compute_gaps_for_student
+from app.modules.skills.service import find_skill_by_topic
 from app.core.config import settings
 from typing import Optional
 
@@ -486,6 +487,32 @@ def _update_skill_on_task_completion(db: Session, user_id: UUID, skill_id: UUID)
     db.commit()
     compute_gaps_for_student(db, str(user_id))
 
+def find_owned_task(db: Session, task_id: UUID, user_id: UUID) -> Optional[RoadmapTask]:
+    """Return the task only if its roadmap belongs to ``user_id``, else None.
+
+    No role bypass: admins get None for other users' tasks too. Use this where
+    raising an HTTP error is not appropriate (background jobs, WebSocket hooks).
+    """
+    return (
+        db.query(RoadmapTask)
+        .join(Roadmap, RoadmapTask.roadmap_id == Roadmap.id)
+        .filter(RoadmapTask.id == task_id, Roadmap.user_id == user_id)
+        .first()
+    )
+
+
+def get_owned_task_or_404(db: Session, task_id: UUID, user_id: UUID) -> RoadmapTask:
+    """Like find_owned_task but raises 404 "Task not found" on a miss.
+
+    A task owned by someone else and a task that does not exist produce the
+    same response, so callers cannot probe for other users' task IDs.
+    """
+    task = find_owned_task(db, task_id, user_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return task
+
+
 def complete_task(db: Session, user_id: UUID, task_id: UUID, feedback_score: int = None) -> RoadmapTaskResponse:
     task = db.query(RoadmapTask).join(Roadmap).filter(
         RoadmapTask.id == task_id, Roadmap.user_id == user_id
@@ -624,17 +651,7 @@ async def update_roadmap_with_weak_skills(db: Session, roadmap: Roadmap, weak_sk
     current_order = (max_order or 0) + 1
     
     for topic in weak_skills:
-        # Match topic to skill
-        tax = (
-            db.query(SkillTaxonomy)
-            .filter(
-                sa.or_(
-                    sa.func.lower(SkillTaxonomy.skill_name) == topic.lower(),
-                    sa.func.array_to_string(SkillTaxonomy.aliases, ",").ilike(f"%{topic}%"),
-                )
-            )
-            .first()
-        )
+        tax = find_skill_by_topic(db, topic)
         if not tax:
             continue
             

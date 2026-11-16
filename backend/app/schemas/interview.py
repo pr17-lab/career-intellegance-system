@@ -33,20 +33,6 @@ class InterviewQuestionOut(BaseModel):
     created_at: Optional[datetime] = None
 
 
-class AnswerSubmitRequest(BaseModel):
-    question_id: uuid.UUID
-    answer: str
-
-
-class AnswerSubmitResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: uuid.UUID
-    question: str
-    user_answer: str
-    session_completed: bool = False  # True when all questions in the session answered
-
-
 # ---------------------------------------------------------------------------
 # Session schemas
 # ---------------------------------------------------------------------------

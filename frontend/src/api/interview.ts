@@ -2,8 +2,6 @@ import api from './client';
 import type {
     InterviewSession,
     InterviewSessionSummary,
-    AnswerSubmitResponse,
-    EvaluationResult,
 } from '../types/interview';
 import type { TaxonomySearchResponse } from '../types/career';
 
@@ -31,28 +29,9 @@ export const getSession = async (sessionId: string): Promise<InterviewSession> =
     return res.data;
 };
 
-// Submit an answer for a question
-export const submitAnswer = async (
-    sessionId: string,
-    questionId: string,
-    answer: string
-): Promise<AnswerSubmitResponse> => {
-    const res = await api.post(`/interview/sessions/${sessionId}/answer`, {
-        question_id: questionId,
-        answer,
-    });
-    return res.data;
-};
-
 // Delete a session permanently
 export const deleteSession = async (sessionId: string): Promise<void> => {
     await api.delete(`/interview/sessions/${sessionId}`);
-};
-
-// Evaluate an interview session answers
-export const evaluateSession = async (sessionId: string): Promise<EvaluationResult> => {
-    const res = await api.post(`/interview/sessions/${sessionId}/evaluate`);
-    return res.data;
 };
 
 // Parse a PDF resume using the backend endpoint
