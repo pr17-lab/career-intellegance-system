@@ -62,10 +62,21 @@ async def verify_github_complexity_async(repo_url: str, user_id: UUID, db: Optio
         db = SessionLocal()
         manage_session = True
 
+    def _owned_task():
+        """The task for task_id only if it belongs to user_id; None (and a warning) otherwise."""
+        from app.modules.roadmap.service import find_owned_task
+        task = find_owned_task(db, task_id, user_id)
+        if task is None:
+            logger.warning(
+                "Skipping roadmap task update: task %s is not owned by user %s",
+                task_id, user_id,
+            )
+        return task
+
     def _fail_task():
         if task_id:
             try:
-                task = db.query(RoadmapTask).filter(RoadmapTask.id == task_id).first()
+                task = _owned_task()
                 if task:
                     task.validation_status = "failed"
                     task.status = "pending"
@@ -362,7 +373,7 @@ README:
         # Update the task status to verified and completed if task_id is provided
         if task_id:
             try:
-                task = db.query(RoadmapTask).filter(RoadmapTask.id == task_id).first()
+                task = _owned_task()
                 if task:
                     task.validation_status = "verified"
                     task.status = "completed"
@@ -390,7 +401,7 @@ README:
         logger.error("Failed to save ingested student project to database: %s", exc)
         if task_id:
             try:
-                task = db.query(RoadmapTask).filter(RoadmapTask.id == task_id).first()
+                task = _owned_task()
                 if task:
                     task.validation_status = "failed"
                     task.status = "pending"

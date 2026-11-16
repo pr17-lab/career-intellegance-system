@@ -529,3 +529,144 @@ async def test_hook_owner_still_completes_own_task(db_session, sample_user, a_ta
     assert apply_.status == "completed"
     assert apply_.validation_status == "verified"
     assert roadmap.completed_tasks == 1
+
+
+# ---------------------------------------------------------------------------
+# D1-D3: background verify_github_complexity_async(repo, user_id, db, task_id)
+# ---------------------------------------------------------------------------
+
+REPO = "https://github.com/student/fastapi-app"
+
+
+@contextmanager
+def github_ok():
+    """Mock GitHub + Gemini so verification succeeds (extracts 'FastAPI')."""
+    def resp(status=200, payload=None):
+        r = MagicMock()
+        r.status_code = status
+        r.json.return_value = payload
+        r.raise_for_status = MagicMock()
+        return r
+
+    repo = resp(payload={"description": "FastAPI App"})
+    commits = resp(payload=[{"sha": f"sha{i}"} for i in range(15)])
+    contents = resp(payload=[{"name": "conftest.py"}])
+    readme = resp(payload={"content": "dGVzdCByZWFkbWU="})
+    gemini = resp(payload={"candidates": [{"content": {"parts": [{"text": "[\"FastAPI\"]"}]}}]})
+
+    async def get(url, headers=None):
+        if "/commits" in url:
+            return commits
+        if "/contents" in url:
+            return contents
+        if "/readme" in url:
+            return readme
+        return repo
+
+    client = AsyncMock()
+    client.get = AsyncMock(side_effect=get)
+    client.post = AsyncMock(return_value=gemini)
+    with patch("app.modules.skills.project_service.settings.GEMINI_API_KEY", "test"),          patch("app.modules.skills.project_service.httpx.AsyncClient") as cls:
+        cls.return_value.__aenter__ = AsyncMock(return_value=client)
+        cls.return_value.__aexit__ = AsyncMock(return_value=False)
+        yield
+
+
+@contextmanager
+def github_404():
+    client = AsyncMock()
+    missing = MagicMock()
+    missing.status_code = 404
+    client.get = AsyncMock(return_value=missing)
+    with patch("app.modules.skills.project_service.httpx.AsyncClient") as cls:
+        cls.return_value.__aenter__ = AsyncMock(return_value=client)
+        cls.return_value.__aexit__ = AsyncMock(return_value=False)
+        yield
+
+
+async def verify(db, user, task):
+    from app.modules.skills.project_service import verify_github_complexity_async
+    await verify_github_complexity_async(
+        repo_url=REPO, user_id=user.id, db=db, task_id=task.id
+    )
+
+
+@pytest.mark.asyncio
+async def test_verify_success_does_not_complete_foreign_task(
+    db_session, other_user, a_tasks
+):
+    _, _, apply_, _ = a_tasks
+    before = snap_task(db_session, apply_)
+    with github_ok():
+        await verify(db_session, other_user, apply_)
+    assert snap_task(db_session, apply_) == before
+
+
+@pytest.mark.asyncio
+async def test_verify_failure_does_not_reset_foreign_completed_task(
+    db_session, other_user, a_tasks
+):
+    """D1: today B's failed check flips A's completed task back to pending."""
+    roadmap, _, apply_, _ = a_tasks
+    apply_.status = "completed"
+    apply_.validation_status = "verified"
+    roadmap.completed_tasks = 1
+    db_session.commit()
+    before = snap_task(db_session, apply_)
+    with github_404():
+        await verify(db_session, other_user, apply_)
+    assert snap_task(db_session, apply_) == before
+
+
+@pytest.mark.asyncio
+async def test_verify_exception_path_does_not_reset_foreign_completed_task(
+    db_session, other_user, a_tasks
+):
+    """D3: an error after the HTTP phase must not touch a foreign task either."""
+    roadmap, _, apply_, _ = a_tasks
+    apply_.status = "completed"
+    apply_.validation_status = "verified"
+    roadmap.completed_tasks = 1
+    db_session.commit()
+    before = snap_task(db_session, apply_)
+    with github_ok(), patch(
+        "app.modules.skills.project_service.calculate_composite_score",
+        side_effect=RuntimeError("boom"),
+    ):
+        await verify(db_session, other_user, apply_)
+    assert snap_task(db_session, apply_) == before
+
+
+@pytest.mark.asyncio
+async def test_verify_admin_cannot_complete_other_users_task(
+    db_session, sample_user, b_tasks, a_tasks
+):
+    _, _, apply_b = b_tasks
+    before = snap_task(db_session, apply_b)
+    with github_ok():
+        await verify(db_session, sample_user, apply_b)
+    assert snap_task(db_session, apply_b) == before
+
+
+@pytest.mark.asyncio
+async def test_verify_owner_still_completes_own_task(db_session, sample_user, a_tasks):
+    roadmap, _, apply_, _ = a_tasks
+    with github_ok():
+        await verify(db_session, sample_user, apply_)
+    db_session.refresh(apply_)
+    db_session.refresh(roadmap)
+    assert apply_.status == "completed"
+    assert apply_.validation_status == "verified"
+    assert roadmap.completed_tasks == 1
+
+
+@pytest.mark.asyncio
+async def test_verify_owner_failure_still_marks_own_task_failed(
+    db_session, sample_user, a_tasks
+):
+    _, _, apply_, _ = a_tasks
+    with github_404():
+        await verify(db_session, sample_user, apply_)
+    db_session.refresh(apply_)
+    assert apply_.validation_status == "failed"
+    assert apply_.status == "pending"
