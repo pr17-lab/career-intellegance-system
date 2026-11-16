@@ -1,0 +1,321 @@
+id,job_role,skill_id,skill_name,importance,min_score_required,last_reviewed_at
+f1fd1dc1-a706-4563-9bce-692afe06995e,Software Engineer,1a590df4-af6b-48ee-b140-2321ebb850d3,DSA,must_have,70,2026-03-01 00:00:00+00:00
+4bce2c8f-5fc7-4845-8cdf-6ed887e3297d,Software Engineer,a85d2ce7-1b18-4b18-b90e-cc527464679f,OOP,must_have,70,2026-03-01 00:00:00+00:00
+67cea302-dc97-477d-b8ba-910bab69068c,Software Engineer,f797fc70-163e-44f6-ab10-7b82a05dcd53,SQL,must_have,70,2026-03-01 00:00:00+00:00
+6e5e6081-2e2a-4010-8e39-2b31513f6d71,Software Engineer,3b0b98d5-415d-4938-9929-0712c48985d0,Python,must_have,70,2026-03-01 00:00:00+00:00
+ea6a4f7b-07a9-4240-aa3c-34cb23e5f0c7,Software Engineer,ed980ec0-09ba-4bb8-b223-8e35488952d6,Java,must_have,70,2026-03-01 00:00:00+00:00
+50f53148-907f-45a1-a5cb-17f7ad4f0ec3,Software Engineer,8a6cfbad-851c-470a-8e93-523adf07c451,Git,must_have,70,2026-03-01 00:00:00+00:00
+dd5453d6-f5db-4e92-8755-3f8183a35e6a,Software Engineer,7dcd0c9f-c244-4c7d-a079-eb2cf788c673,REST APIs,must_have,70,2026-03-01 00:00:00+00:00
+4801de4b-609f-4a3a-9ff5-a51854d6447e,Software Engineer,ada9ec21-0d87-44d0-8c34-80411ddc6339,PostgreSQL,preferred,55,2026-03-01 00:00:00+00:00
+34281dd7-81d8-4562-8cf8-46d85c853802,Software Engineer,5612b3f9-7774-4e28-9246-69d9c39f8b45,Docker,preferred,55,2026-03-01 00:00:00+00:00
+e82473d0-5746-4142-9968-6ba7a952868b,Software Engineer,78e01543-fb4a-4ba1-93d0-5eb74ed54bb1,System Design,preferred,55,2026-03-01 00:00:00+00:00
+62e64bb7-0a6e-470e-a731-af8cd714bc13,Software Engineer,2689d84a-7312-4cd1-8ec5-c30d03ebd86f,Software Engineering,preferred,55,2026-03-01 00:00:00+00:00
+1fd06bde-45dd-41ec-9fff-69b77dd539db,Software Engineer,ebdb2ff8-dc0b-449e-8135-dfe056e74340,Redis,nice_to_have,40,2026-03-01 00:00:00+00:00
+eb05989d-5c11-4240-89f9-b9473763c9cf,Software Engineer,79a64b55-ee75-4cf2-85bd-4776e22c5509,CI/CD,nice_to_have,40,2026-03-01 00:00:00+00:00
+d6306fb0-a75d-4e9c-be71-081adc1fe76a,Software Engineer,184f2419-daf1-4d82-8e7f-c5c1c6545193,Kubernetes,nice_to_have,40,2026-03-01 00:00:00+00:00
+84c75aa9-718b-44bf-ae8e-f99fe918f6b1,Data Scientist,3b0b98d5-415d-4938-9929-0712c48985d0,Python,must_have,70,2026-03-01 00:00:00+00:00
+eca7a6ea-3423-48dd-9998-7988d18ed071,Data Scientist,8fc9258e-c3eb-4542-9a05-d9ecabc0188b,Machine Learning,must_have,70,2026-03-01 00:00:00+00:00
+4291c90e-629f-40e3-9bba-71595cbe57ff,Data Scientist,e7b8f0d6-268a-4f56-a130-48459630345f,pandas,must_have,70,2026-03-01 00:00:00+00:00
+158d3731-c197-45ec-b5bc-8d251da5f909,Data Scientist,bffcd18b-0d1f-4c5c-bf6d-5c537c08f119,Data Analysis,must_have,70,2026-03-01 00:00:00+00:00
+52f41676-4c30-4764-8a84-7c90e29c5290,Data Scientist,f797fc70-163e-44f6-ab10-7b82a05dcd53,SQL,must_have,70,2026-03-01 00:00:00+00:00
+dc7c5fa7-036e-4e6e-bb24-e73399879b70,Data Scientist,19ab98e0-e9b3-4445-9e67-9c72f08c607f,Feature Engineering,must_have,70,2026-03-01 00:00:00+00:00
+8f5a3fe2-9149-4b07-ab12-77ab6a9455e8,Data Scientist,47d9ed46-f3cc-4904-954a-8e96bdf4751a,Deep Learning,preferred,55,2026-03-01 00:00:00+00:00
+0f47d218-f1b2-4b7b-84af-0f5cccb77230,Data Scientist,e383651c-ba76-489e-af69-1a579f42902c,scikit-learn,preferred,55,2026-03-01 00:00:00+00:00
+8f517577-289e-45f6-b4e5-6ceaaeb16d74,Data Scientist,9d1ff361-d523-4b26-a85b-71614521ca74,TensorFlow,preferred,55,2026-03-01 00:00:00+00:00
+16024a49-8e5b-4dcd-90b0-050b3c8989af,Data Scientist,ada9ec21-0d87-44d0-8c34-80411ddc6339,PostgreSQL,preferred,55,2026-03-01 00:00:00+00:00
+357c3210-7c18-4398-99e4-cc0fc0346d25,Data Scientist,b295fa54-5a76-41fc-bc76-90ff263874df,NLP,nice_to_have,40,2026-03-01 00:00:00+00:00
+429b19d8-2102-4ba3-9a8a-c3561b6fa03c,Data Scientist,eb94f91a-a90b-4f50-a184-180b62e95b53,Computer Vision,nice_to_have,40,2026-03-01 00:00:00+00:00
+fb144831-5cf9-4575-a77e-b64e670ec426,Data Scientist,5612b3f9-7774-4e28-9246-69d9c39f8b45,Docker,nice_to_have,40,2026-03-01 00:00:00+00:00
+cb0eb500-69fe-405e-ba73-170df0f5f12a,Frontend Developer,762255ec-8922-4e5f-b2ce-f5ef6e6ea064,React,must_have,70,2026-03-01 00:00:00+00:00
+2c5bab26-5611-4247-b928-11c5a76e727a,Frontend Developer,5c793030-5f4e-4ed3-bf67-eaef36c9b344,JavaScript,must_have,70,2026-03-01 00:00:00+00:00
+c7b31418-0fea-4400-a849-1bab9d0b8e77,Frontend Developer,48d932a1-2528-4a07-b4ff-a6237034be22,HTML,must_have,70,2026-03-01 00:00:00+00:00
+6c68509b-b049-4d7d-8553-b54f4b4ffbe5,Frontend Developer,71a466e6-fec2-4325-8ae0-eaa532bf5cf2,CSS,must_have,70,2026-03-01 00:00:00+00:00
+378f6b61-d028-4afa-9953-df87453f6664,Frontend Developer,6dde65d4-9418-4cc1-984b-90dfbde6be42,TypeScript,must_have,70,2026-03-01 00:00:00+00:00
+061e157d-f5c4-4697-a1e1-d6fcedf3eb46,Frontend Developer,8a6cfbad-851c-470a-8e93-523adf07c451,Git,must_have,70,2026-03-01 00:00:00+00:00
+5afc9bfe-6026-446c-a762-2a297f31638f,Frontend Developer,77ea6a58-9a60-46f8-adba-8efdaf78dfca,Tailwind CSS,preferred,55,2026-03-01 00:00:00+00:00
+6fdb2428-19fa-47c6-8867-890577402d14,Frontend Developer,7dcd0c9f-c244-4c7d-a079-eb2cf788c673,REST APIs,preferred,55,2026-03-01 00:00:00+00:00
+6df69a42-b7b4-4d26-a28a-2f0e63dbea83,Frontend Developer,6eccb73d-81a5-4e79-98b7-b2984c452b9f,Vue.js,preferred,55,2026-03-01 00:00:00+00:00
+b9f1d5c2-bccc-4643-9397-0467bf3627b1,Frontend Developer,5612b3f9-7774-4e28-9246-69d9c39f8b45,Docker,nice_to_have,40,2026-03-01 00:00:00+00:00
+276618bc-7eb3-4a41-ab52-f707229a92c4,Frontend Developer,79a64b55-ee75-4cf2-85bd-4776e22c5509,CI/CD,nice_to_have,40,2026-03-01 00:00:00+00:00
+a9194e09-8352-4141-9050-bca8e12b4e88,Frontend Developer,d994fff0-f9fc-4f90-bb0c-42c433c35b49,GraphQL,nice_to_have,40,2026-03-01 00:00:00+00:00
+5be692e9-2014-4bcd-8d0f-554b05fcdcb4,DevOps Engineer,5612b3f9-7774-4e28-9246-69d9c39f8b45,Docker,must_have,70,2026-03-01 00:00:00+00:00
+ce0b15ae-f6b3-4c48-83eb-114dcbae76f6,DevOps Engineer,7d6ab219-a9e7-4e2b-bc8e-e47505629adf,Linux,must_have,70,2026-03-01 00:00:00+00:00
+8834f5b3-264d-480f-aec9-c56d74d54479,DevOps Engineer,8a6cfbad-851c-470a-8e93-523adf07c451,Git,must_have,70,2026-03-01 00:00:00+00:00
+275abb86-4aa1-4d6f-a248-382c40ac707f,DevOps Engineer,79a64b55-ee75-4cf2-85bd-4776e22c5509,CI/CD,must_have,70,2026-03-01 00:00:00+00:00
+258a0b8a-5619-4b3c-82f2-89cd8a18824e,DevOps Engineer,e01d0341-b5bb-4201-bdae-214d38da3b0a,AWS,must_have,70,2026-03-01 00:00:00+00:00
+eca8be37-c84c-44fe-b59c-699737e89c89,DevOps Engineer,184f2419-daf1-4d82-8e7f-c5c1c6545193,Kubernetes,must_have,70,2026-03-01 00:00:00+00:00
+9d7cef57-63bc-494b-bd50-ea6fd57c7e72,DevOps Engineer,3b0b98d5-415d-4938-9929-0712c48985d0,Python,preferred,55,2026-03-01 00:00:00+00:00
+ef849997-cc90-4a21-a143-912862d25cbb,DevOps Engineer,e2988221-8a86-4ec3-964c-3711fa3d0256,Terraform,preferred,55,2026-03-01 00:00:00+00:00
+fd77eb7d-309a-43a6-995b-cca4c014e088,DevOps Engineer,78e01543-fb4a-4ba1-93d0-5eb74ed54bb1,System Design,preferred,55,2026-03-01 00:00:00+00:00
+efe24747-a167-4ef9-8586-cf21e49eb570,DevOps Engineer,ada9ec21-0d87-44d0-8c34-80411ddc6339,PostgreSQL,nice_to_have,40,2026-03-01 00:00:00+00:00
+8316b65d-10e1-433d-91cc-13db1f3f9441,DevOps Engineer,ebdb2ff8-dc0b-449e-8135-dfe056e74340,Redis,nice_to_have,40,2026-03-01 00:00:00+00:00
+661d0914-257c-455d-8cac-4d0b28b0c029,Data Engineer,3b0b98d5-415d-4938-9929-0712c48985d0,Python,must_have,70,2026-03-01 00:00:00+00:00
+4f7bbb54-87f0-4161-83d9-b398949e3271,Data Engineer,f797fc70-163e-44f6-ab10-7b82a05dcd53,SQL,must_have,70,2026-03-01 00:00:00+00:00
+14a3404f-6e48-4b8e-a850-f453919912eb,Data Engineer,ada9ec21-0d87-44d0-8c34-80411ddc6339,PostgreSQL,must_have,70,2026-03-01 00:00:00+00:00
+a144bce4-0268-4dba-aa25-521999f94fe6,Data Engineer,bffcd18b-0d1f-4c5c-bf6d-5c537c08f119,Data Analysis,must_have,70,2026-03-01 00:00:00+00:00
+7b8074e6-0992-43ff-90a6-6eef5ef8f83e,Data Engineer,5612b3f9-7774-4e28-9246-69d9c39f8b45,Docker,must_have,70,2026-03-01 00:00:00+00:00
+33031def-4a01-49db-aa52-1f03cf2bd15f,Data Engineer,8a6cfbad-851c-470a-8e93-523adf07c451,Git,must_have,70,2026-03-01 00:00:00+00:00
+8beda02e-42d7-4042-85ab-e7e7a51c5645,Data Engineer,dbbde872-29de-4719-8297-1b98a715a2d0,MongoDB,preferred,55,2026-03-01 00:00:00+00:00
+1a008c99-62e8-4522-aa00-83ccd4de798a,Data Engineer,ebdb2ff8-dc0b-449e-8135-dfe056e74340,Redis,preferred,55,2026-03-01 00:00:00+00:00
+d62dbe0e-00e4-463a-acb5-9fab8f247a5b,Data Engineer,8fc9258e-c3eb-4542-9a05-d9ecabc0188b,Machine Learning,preferred,55,2026-03-01 00:00:00+00:00
+114a3b21-a6ee-4153-95c4-5064d0b8ca54,Data Engineer,79a64b55-ee75-4cf2-85bd-4776e22c5509,CI/CD,preferred,55,2026-03-01 00:00:00+00:00
+79ff05a5-d8b1-492a-9f20-04468b61c32c,Data Engineer,184f2419-daf1-4d82-8e7f-c5c1c6545193,Kubernetes,nice_to_have,40,2026-03-01 00:00:00+00:00
+d9062224-f0dd-4852-8750-b3253db39c93,Data Engineer,e2988221-8a86-4ec3-964c-3711fa3d0256,Terraform,nice_to_have,40,2026-03-01 00:00:00+00:00
+5e44fc3d-738a-4e47-85ab-0e32482a8412,Embedded Systems Engineer,b193732e-b43e-4945-9f6a-3e3d291d593a,C Programming,must_have,70,2026-03-01 00:00:00+00:00
+b4aa7b85-a8b2-4f7b-a89a-a3f00acd180d,Embedded Systems Engineer,ff7354e4-7d20-47ce-8911-ceafb3842601,C++,must_have,70,2026-03-01 00:00:00+00:00
+52f776ad-0720-4998-aec0-5939eea09510,Embedded Systems Engineer,ac3c9f8f-df3d-4136-a048-307f37be4761,Embedded C,must_have,70,2026-03-01 00:00:00+00:00
+42913a01-2dc0-4102-a5ec-c92588f10b38,Embedded Systems Engineer,ae590b5e-16b6-44d8-a9d5-4e42b111e8d3,Microcontrollers,must_have,70,2026-03-01 00:00:00+00:00
+2718ad1c-8af0-4630-8252-4eaa94bd63ba,Embedded Systems Engineer,1138e3bd-fbf0-4df1-8a2b-13d6f81b2097,RTOS,must_have,70,2026-03-01 00:00:00+00:00
+6e130ce1-76dc-48c3-ac6d-65b779b4f926,Embedded Systems Engineer,a42c5fa8-6ffb-4ef1-872b-d8fd16086837,Arduino,preferred,55,2026-03-01 00:00:00+00:00
+d1fe2ec7-84a8-4475-932e-f0ba840af1a5,Embedded Systems Engineer,8ffc555a-4a77-4913-8696-884a836fd94f,PCB Design,preferred,55,2026-03-01 00:00:00+00:00
+958095db-f890-4948-a00d-1ed98d5fbfd6,Embedded Systems Engineer,3b0b98d5-415d-4938-9929-0712c48985d0,Python,preferred,55,2026-03-01 00:00:00+00:00
+600ad4b5-3e31-490a-ab05-48563299a001,Embedded Systems Engineer,8a6cfbad-851c-470a-8e93-523adf07c451,Git,preferred,55,2026-03-01 00:00:00+00:00
+7cc04437-ce22-4989-8177-23753d0c6527,Embedded Systems Engineer,7d6ab219-a9e7-4e2b-bc8e-e47505629adf,Linux,nice_to_have,40,2026-03-01 00:00:00+00:00
+ca82a29f-09eb-4ba0-82e4-399192618643,Embedded Systems Engineer,5612b3f9-7774-4e28-9246-69d9c39f8b45,Docker,nice_to_have,40,2026-03-01 00:00:00+00:00
+d58e74fe-db1e-4abd-a8b6-f349b807f9fd,Embedded Systems Engineer,091f8bf3-0c49-428b-ab0c-7d1736d1b1ea,VLSI Design,nice_to_have,40,2026-03-01 00:00:00+00:00
+84e09181-ef68-45e1-bebc-9020f50cdede,Hardware/VLSI Design Engineer,091f8bf3-0c49-428b-ab0c-7d1736d1b1ea,VLSI Design,must_have,70,2026-03-01 00:00:00+00:00
+b2f0b350-ad35-4dde-a0ff-9cc9a1c5d052,Hardware/VLSI Design Engineer,2b069cc1-9e94-4bdc-94b2-bb26ded78c48,Digital Electronics,must_have,70,2026-03-01 00:00:00+00:00
+2f7a8e01-622c-4664-a79a-1712fa67bbdf,Hardware/VLSI Design Engineer,890f96b0-924b-4f32-af21-e02533f08984,Circuit Theory,must_have,70,2026-03-01 00:00:00+00:00
+fc22af96-9add-43ba-b2a2-467d50cec57c,Hardware/VLSI Design Engineer,b193732e-b43e-4945-9f6a-3e3d291d593a,C Programming,must_have,70,2026-03-01 00:00:00+00:00
+747676df-effc-4621-a968-1858f202221d,Hardware/VLSI Design Engineer,ff7354e4-7d20-47ce-8911-ceafb3842601,C++,must_have,70,2026-03-01 00:00:00+00:00
+81e68efc-c5c5-4be8-85ee-39094e95ad37,Hardware/VLSI Design Engineer,dbceb76f-527b-434a-a6b8-87c1219f6307,Analog Electronics,preferred,55,2026-03-01 00:00:00+00:00
+1ccc7c91-7b59-43d8-afde-1968cb1b9d07,Hardware/VLSI Design Engineer,8ffc555a-4a77-4913-8696-884a836fd94f,PCB Design,preferred,55,2026-03-01 00:00:00+00:00
+91d8e319-c591-41bd-96d5-b179e300f206,Hardware/VLSI Design Engineer,dad057e0-19ff-4258-8ed5-03c60f6bbe4c,Signals and Systems,preferred,55,2026-03-01 00:00:00+00:00
+f2aea710-78d1-4143-823a-f2ea50b9776b,Hardware/VLSI Design Engineer,ac3c9f8f-df3d-4136-a048-307f37be4761,Embedded C,nice_to_have,40,2026-03-01 00:00:00+00:00
+56d5059c-929d-4eb9-bcd0-6eb56157e4fe,Hardware/VLSI Design Engineer,3b0b98d5-415d-4938-9929-0712c48985d0,Python,nice_to_have,40,2026-03-01 00:00:00+00:00
+77903353-8979-4c9b-a38e-1611f0d7f10a,Hardware/VLSI Design Engineer,ae590b5e-16b6-44d8-a9d5-4e42b111e8d3,Microcontrollers,nice_to_have,40,2026-03-01 00:00:00+00:00
+e2b3c500-07d6-4957-9423-60481b9dae65,Cybersecurity Analyst,da399266-d5d4-4e2a-93d2-c813dc498610,Computer Networks,must_have,70,2026-03-01 00:00:00+00:00
+93d59795-d2f7-4b18-a51e-030c4aac702c,Cybersecurity Analyst,7d6ab219-a9e7-4e2b-bc8e-e47505629adf,Linux,must_have,70,2026-03-01 00:00:00+00:00
+9a136fe8-3a1f-4c10-a3fe-5b2a0bde66b2,Cybersecurity Analyst,3b0b98d5-415d-4938-9929-0712c48985d0,Python,must_have,70,2026-03-01 00:00:00+00:00
+236a01b8-7b3f-4972-9f6b-777cfd930e3d,Cybersecurity Analyst,826f9832-2dd4-47eb-af0a-e6b047049629,DBMS,must_have,70,2026-03-01 00:00:00+00:00
+9d060dbf-494c-43c1-964f-e475d60d5f35,Cybersecurity Analyst,6b21dce9-4f89-4a7c-996a-eaf6acdff88d,Operating Systems,must_have,70,2026-03-01 00:00:00+00:00
+8e77606e-1753-4b6a-8032-62ae627a2490,Cybersecurity Analyst,8a6cfbad-851c-470a-8e93-523adf07c451,Git,preferred,55,2026-03-01 00:00:00+00:00
+48fb6908-0053-4f99-816f-f00c49ae5bfe,Cybersecurity Analyst,5612b3f9-7774-4e28-9246-69d9c39f8b45,Docker,preferred,55,2026-03-01 00:00:00+00:00
+c3e65dbc-c23c-4008-9ddf-c99f2b658bba,Cybersecurity Analyst,7dcd0c9f-c244-4c7d-a079-eb2cf788c673,REST APIs,preferred,55,2026-03-01 00:00:00+00:00
+0e629fdd-d069-40bc-890b-3d108c9ed006,Cybersecurity Analyst,f797fc70-163e-44f6-ab10-7b82a05dcd53,SQL,preferred,55,2026-03-01 00:00:00+00:00
+2962781d-5b01-4c5e-ba2c-3cb01a1a684d,Cybersecurity Analyst,184f2419-daf1-4d82-8e7f-c5c1c6545193,Kubernetes,nice_to_have,40,2026-03-01 00:00:00+00:00
+fa26be23-c59b-43c2-b0ec-ee7464b88706,Cybersecurity Analyst,79a64b55-ee75-4cf2-85bd-4776e22c5509,CI/CD,nice_to_have,40,2026-03-01 00:00:00+00:00
+f2689bac-ceb6-47c5-828f-fb07c566af9e,Cybersecurity Analyst,e01d0341-b5bb-4201-bdae-214d38da3b0a,AWS,nice_to_have,40,2026-03-01 00:00:00+00:00
+d4c6bfd7-e43a-46f1-9210-9d057219d0bb,Blockchain Developer,3b0b98d5-415d-4938-9929-0712c48985d0,Python,must_have,70,2026-03-01 00:00:00+00:00
+48acbdd7-2d01-4bf6-9f42-19a9eb2ea500,Blockchain Developer,5c793030-5f4e-4ed3-bf67-eaef36c9b344,JavaScript,must_have,70,2026-03-01 00:00:00+00:00
+d0dfd37f-3722-4514-a9c6-3119336342a9,Blockchain Developer,1a590df4-af6b-48ee-b140-2321ebb850d3,DSA,must_have,70,2026-03-01 00:00:00+00:00
+8d25164b-d543-47d7-bd9c-98227ee5af89,Blockchain Developer,a85d2ce7-1b18-4b18-b90e-cc527464679f,OOP,must_have,70,2026-03-01 00:00:00+00:00
+1645866e-cccb-4859-ba68-b4b0be6517c0,Blockchain Developer,7dcd0c9f-c244-4c7d-a079-eb2cf788c673,REST APIs,must_have,70,2026-03-01 00:00:00+00:00
+8614554d-a454-4505-afe6-416ea5300752,Blockchain Developer,f797fc70-163e-44f6-ab10-7b82a05dcd53,SQL,must_have,70,2026-03-01 00:00:00+00:00
+720f46d0-9fb4-4004-ae81-4b7c09fb2127,Blockchain Developer,5612b3f9-7774-4e28-9246-69d9c39f8b45,Docker,preferred,55,2026-03-01 00:00:00+00:00
+a6edefd1-ba63-42d2-94e3-136b1f7269da,Blockchain Developer,8a6cfbad-851c-470a-8e93-523adf07c451,Git,preferred,55,2026-03-01 00:00:00+00:00
+8079d64c-9083-43ff-b74a-bb1d5a391922,Blockchain Developer,a554415d-9942-4f9b-a7f7-c334b6ce85a3,Node.js,preferred,55,2026-03-01 00:00:00+00:00
+dab2130e-c61e-498e-8fab-6d876239f49b,Blockchain Developer,ada9ec21-0d87-44d0-8c34-80411ddc6339,PostgreSQL,preferred,55,2026-03-01 00:00:00+00:00
+93ba0382-0a06-4b20-a73a-e51a4ebe5102,Blockchain Developer,ebdb2ff8-dc0b-449e-8135-dfe056e74340,Redis,nice_to_have,40,2026-03-01 00:00:00+00:00
+91eb013e-e543-422d-835f-33d0d23121c7,Blockchain Developer,184f2419-daf1-4d82-8e7f-c5c1c6545193,Kubernetes,nice_to_have,40,2026-03-01 00:00:00+00:00
+aa280f75-81a7-4316-a96b-41683197eb6e,Blockchain Developer,79a64b55-ee75-4cf2-85bd-4776e22c5509,CI/CD,nice_to_have,40,2026-03-01 00:00:00+00:00
+b4594845-b7a6-4b0a-be49-31f0b7fce480,Technical Product Manager,2689d84a-7312-4cd1-8ec5-c30d03ebd86f,Software Engineering,must_have,70,2026-03-01 00:00:00+00:00
+be6b6480-4bf7-487b-a0bf-4609cf555ddb,Technical Product Manager,7dcd0c9f-c244-4c7d-a079-eb2cf788c673,REST APIs,must_have,70,2026-03-01 00:00:00+00:00
+230e2005-fa10-4470-83f2-6a89f6291c56,Technical Product Manager,f797fc70-163e-44f6-ab10-7b82a05dcd53,SQL,must_have,70,2026-03-01 00:00:00+00:00
+34c048f4-ba10-4a55-a429-a2cc14416d7c,Technical Product Manager,8a6cfbad-851c-470a-8e93-523adf07c451,Git,must_have,70,2026-03-01 00:00:00+00:00
+0373e51c-7756-4fad-a140-80a2f2feaa02,Technical Product Manager,78e01543-fb4a-4ba1-93d0-5eb74ed54bb1,System Design,must_have,70,2026-03-01 00:00:00+00:00
+6fc6ffb1-30dd-46f3-bcd2-a27af0bdaf28,Technical Product Manager,3b0b98d5-415d-4938-9929-0712c48985d0,Python,preferred,55,2026-03-01 00:00:00+00:00
+bf4cfc74-474a-432e-9716-cecd07ac5535,Technical Product Manager,5612b3f9-7774-4e28-9246-69d9c39f8b45,Docker,preferred,55,2026-03-01 00:00:00+00:00
+2b7e88fb-f593-4d45-b6a1-34d2354df25c,Technical Product Manager,8fc9258e-c3eb-4542-9a05-d9ecabc0188b,Machine Learning,preferred,55,2026-03-01 00:00:00+00:00
+01341743-0bfa-4960-bd27-f39c38f2a2de,Technical Product Manager,ada9ec21-0d87-44d0-8c34-80411ddc6339,PostgreSQL,preferred,55,2026-03-01 00:00:00+00:00
+765da68c-8973-4b49-a59e-bf2be761e4ee,Technical Product Manager,e01d0341-b5bb-4201-bdae-214d38da3b0a,AWS,nice_to_have,40,2026-03-01 00:00:00+00:00
+3af0fd8d-c8e4-4102-847c-3665f2a0dcc5,Technical Product Manager,79a64b55-ee75-4cf2-85bd-4776e22c5509,CI/CD,nice_to_have,40,2026-03-01 00:00:00+00:00
+c7805981-904e-4783-bb14-39e62265ee2c,Technical Product Manager,184f2419-daf1-4d82-8e7f-c5c1c6545193,Kubernetes,nice_to_have,40,2026-03-01 00:00:00+00:00
+f9e6c86d-52b9-4724-aaab-f3c71bafb7e1,Backend Developer,3b0b98d5-415d-4938-9929-0712c48985d0,Python,must_have,70,2026-03-01 00:00:00+00:00
+dd32a39e-4054-4b5e-a3b3-c90552c1ced6,Backend Developer,ed980ec0-09ba-4bb8-b223-8e35488952d6,Java,must_have,70,2026-03-01 00:00:00+00:00
+5142c685-99bb-443f-8ebf-c901c955ef11,Backend Developer,7dcd0c9f-c244-4c7d-a079-eb2cf788c673,REST APIs,must_have,70,2026-03-01 00:00:00+00:00
+760aece6-c6bd-43d9-965a-66dbad2ad246,Backend Developer,f797fc70-163e-44f6-ab10-7b82a05dcd53,SQL,must_have,70,2026-03-01 00:00:00+00:00
+19762b6c-48b1-4717-9bde-8d9601144226,Backend Developer,ada9ec21-0d87-44d0-8c34-80411ddc6339,PostgreSQL,must_have,70,2026-03-01 00:00:00+00:00
+f350984f-ada0-4a57-b0b5-45ceef565987,Backend Developer,a85d2ce7-1b18-4b18-b90e-cc527464679f,OOP,must_have,70,2026-03-01 00:00:00+00:00
+438478d1-164f-4c9a-95e4-1089ea19a1fb,Backend Developer,8a6cfbad-851c-470a-8e93-523adf07c451,Git,must_have,70,2026-03-01 00:00:00+00:00
+6ee0dbd0-8ae0-4312-b89b-e3bb958215dd,Backend Developer,5612b3f9-7774-4e28-9246-69d9c39f8b45,Docker,preferred,55,2026-03-01 00:00:00+00:00
+e7b38ac2-150c-4031-b665-50e203c8e3a1,Backend Developer,ebdb2ff8-dc0b-449e-8135-dfe056e74340,Redis,preferred,55,2026-03-01 00:00:00+00:00
+e52ac552-c033-4d20-884c-a1632ca10b01,Backend Developer,dbbde872-29de-4719-8297-1b98a715a2d0,MongoDB,preferred,55,2026-03-01 00:00:00+00:00
+0d935ad7-2fa5-4aa4-b90e-a3b6b16ffb1f,Backend Developer,78e01543-fb4a-4ba1-93d0-5eb74ed54bb1,System Design,preferred,55,2026-03-01 00:00:00+00:00
+d4028cc8-2e40-46f1-9a8a-54702b52dfc8,Backend Developer,e01d0341-b5bb-4201-bdae-214d38da3b0a,AWS,nice_to_have,40,2026-03-01 00:00:00+00:00
+f0716189-f9d3-4ede-a6b1-4f473130cc5d,Backend Developer,184f2419-daf1-4d82-8e7f-c5c1c6545193,Kubernetes,nice_to_have,40,2026-03-01 00:00:00+00:00
+9fcdbf30-5c83-4867-89a6-11bc5da45f54,Backend Developer,d994fff0-f9fc-4f90-bb0c-42c433c35b49,GraphQL,nice_to_have,40,2026-03-01 00:00:00+00:00
+533a4b7a-0d2f-42e3-9044-36634429afd9,Backend Developer,79a64b55-ee75-4cf2-85bd-4776e22c5509,CI/CD,nice_to_have,40,2026-03-01 00:00:00+00:00
+665795fd-9a0e-4394-996d-b5935143dc98,Full Stack Developer,762255ec-8922-4e5f-b2ce-f5ef6e6ea064,React,must_have,70,2026-03-01 00:00:00+00:00
+538306d2-d1e8-4f24-bb8c-3e10d93b516e,Full Stack Developer,5c793030-5f4e-4ed3-bf67-eaef36c9b344,JavaScript,must_have,70,2026-03-01 00:00:00+00:00
+56fb2a94-3698-48b5-9011-c28c1e511295,Full Stack Developer,3b0b98d5-415d-4938-9929-0712c48985d0,Python,must_have,70,2026-03-01 00:00:00+00:00
+5829643a-b28e-49a1-a8d1-f3b47114b60b,Full Stack Developer,a554415d-9942-4f9b-a7f7-c334b6ce85a3,Node.js,must_have,70,2026-03-01 00:00:00+00:00
+ff7c3362-6c7a-4e1f-a0e6-52ce9ef4eaf1,Full Stack Developer,7dcd0c9f-c244-4c7d-a079-eb2cf788c673,REST APIs,must_have,70,2026-03-01 00:00:00+00:00
+e99eddf6-f592-4474-9de9-17d72656dcdd,Full Stack Developer,f797fc70-163e-44f6-ab10-7b82a05dcd53,SQL,must_have,70,2026-03-01 00:00:00+00:00
+becda71b-1afb-452a-a648-b30d91437ea8,Full Stack Developer,8a6cfbad-851c-470a-8e93-523adf07c451,Git,must_have,70,2026-03-01 00:00:00+00:00
+7d5477c6-2eb0-4fd8-a2be-cc331fdd867b,Full Stack Developer,48d932a1-2528-4a07-b4ff-a6237034be22,HTML,must_have,70,2026-03-01 00:00:00+00:00
+3d34701e-39ac-4554-a0b8-814f56e12809,Full Stack Developer,71a466e6-fec2-4325-8ae0-eaa532bf5cf2,CSS,must_have,70,2026-03-01 00:00:00+00:00
+5cfdd348-cf47-431f-8e6d-701c14f0c88b,Full Stack Developer,6dde65d4-9418-4cc1-984b-90dfbde6be42,TypeScript,preferred,55,2026-03-01 00:00:00+00:00
+c5da0ad0-5006-4f9c-8a76-49d2736b3508,Full Stack Developer,ada9ec21-0d87-44d0-8c34-80411ddc6339,PostgreSQL,preferred,55,2026-03-01 00:00:00+00:00
+635d903f-c9d4-4010-b4eb-13be6073145d,Full Stack Developer,5612b3f9-7774-4e28-9246-69d9c39f8b45,Docker,preferred,55,2026-03-01 00:00:00+00:00
+414bfcb2-5c15-4d2a-980d-032fc710fd79,Full Stack Developer,dbbde872-29de-4719-8297-1b98a715a2d0,MongoDB,preferred,55,2026-03-01 00:00:00+00:00
+4906fe1c-cb96-4d41-8022-16b861fa38f1,Full Stack Developer,e01d0341-b5bb-4201-bdae-214d38da3b0a,AWS,nice_to_have,40,2026-03-01 00:00:00+00:00
+c2b21df5-d3c8-4420-93d4-c9afddf8ae5d,Full Stack Developer,ebdb2ff8-dc0b-449e-8135-dfe056e74340,Redis,nice_to_have,40,2026-03-01 00:00:00+00:00
+f589610b-0d6f-4653-b73b-eafa0e0bf967,Full Stack Developer,79a64b55-ee75-4cf2-85bd-4776e22c5509,CI/CD,nice_to_have,40,2026-03-01 00:00:00+00:00
+90f74c01-b6b2-4be3-a64d-8315cace16ac,Full Stack Developer,d994fff0-f9fc-4f90-bb0c-42c433c35b49,GraphQL,nice_to_have,40,2026-03-01 00:00:00+00:00
+eac60d22-072c-4496-86bd-85c6d61a1539,Mobile App Developer,5c793030-5f4e-4ed3-bf67-eaef36c9b344,JavaScript,must_have,70,2026-03-01 00:00:00+00:00
+3ddc3b32-b3de-43bb-a8c6-c9bbc773460c,Mobile App Developer,762255ec-8922-4e5f-b2ce-f5ef6e6ea064,React,must_have,70,2026-03-01 00:00:00+00:00
+e4687ee1-8d54-4d37-8a04-4066d6fef2c7,Mobile App Developer,6dde65d4-9418-4cc1-984b-90dfbde6be42,TypeScript,must_have,70,2026-03-01 00:00:00+00:00
+5a9dd2fe-4735-4e98-8403-c1017ccd794c,Mobile App Developer,8a6cfbad-851c-470a-8e93-523adf07c451,Git,must_have,70,2026-03-01 00:00:00+00:00
+39aca365-6eaa-4c77-bc9d-46af6571c281,Mobile App Developer,7dcd0c9f-c244-4c7d-a079-eb2cf788c673,REST APIs,must_have,70,2026-03-01 00:00:00+00:00
+397d7ff6-1e9e-4d8d-b156-e3165fa9547c,Mobile App Developer,3b0b98d5-415d-4938-9929-0712c48985d0,Python,preferred,55,2026-03-01 00:00:00+00:00
+9a515fb2-e145-44c2-bc98-ad2fe36c3c96,Mobile App Developer,f797fc70-163e-44f6-ab10-7b82a05dcd53,SQL,preferred,55,2026-03-01 00:00:00+00:00
+d3a06cb7-c189-4eba-b1c9-79b69730bcba,Mobile App Developer,dbbde872-29de-4719-8297-1b98a715a2d0,MongoDB,preferred,55,2026-03-01 00:00:00+00:00
+27373ef3-d6a0-4879-bb40-5f95edad6e8b,Mobile App Developer,5612b3f9-7774-4e28-9246-69d9c39f8b45,Docker,preferred,55,2026-03-01 00:00:00+00:00
+b9962c87-9cf1-451e-9361-a84eecc12deb,Mobile App Developer,e01d0341-b5bb-4201-bdae-214d38da3b0a,AWS,nice_to_have,40,2026-03-01 00:00:00+00:00
+e9bd738d-f4b9-4333-a257-b9c862ad4a1e,Mobile App Developer,79a64b55-ee75-4cf2-85bd-4776e22c5509,CI/CD,nice_to_have,40,2026-03-01 00:00:00+00:00
+f5c4eded-1ed2-4d0f-915b-de7f7d91199b,Mobile App Developer,d994fff0-f9fc-4f90-bb0c-42c433c35b49,GraphQL,nice_to_have,40,2026-03-01 00:00:00+00:00
+c7e9255c-cee7-49fa-8083-9f086ba33bc8,Machine Learning Engineer,3b0b98d5-415d-4938-9929-0712c48985d0,Python,must_have,70,2026-03-01 00:00:00+00:00
+11c04fc0-8234-4640-b089-80ec5cc87a7f,Machine Learning Engineer,8fc9258e-c3eb-4542-9a05-d9ecabc0188b,Machine Learning,must_have,70,2026-03-01 00:00:00+00:00
+1dba3ef6-b64d-4c28-bb19-37ac0f0634e5,Machine Learning Engineer,47d9ed46-f3cc-4904-954a-8e96bdf4751a,Deep Learning,must_have,70,2026-03-01 00:00:00+00:00
+0568b833-7ac5-4242-9680-56cbd4630dd0,Machine Learning Engineer,e383651c-ba76-489e-af69-1a579f42902c,scikit-learn,must_have,70,2026-03-01 00:00:00+00:00
+19933803-2cc8-41f6-a451-a1586a70352b,Machine Learning Engineer,e7b8f0d6-268a-4f56-a130-48459630345f,pandas,must_have,70,2026-03-01 00:00:00+00:00
+3250cd46-fe0a-40f9-ab4a-59324aa3852a,Machine Learning Engineer,8a6cfbad-851c-470a-8e93-523adf07c451,Git,must_have,70,2026-03-01 00:00:00+00:00
+33b176ac-3b12-42ad-a25b-066b2b3947e4,Machine Learning Engineer,9d1ff361-d523-4b26-a85b-71614521ca74,TensorFlow,preferred,55,2026-03-01 00:00:00+00:00
+c1361eaa-1ac1-4030-a666-259f8640d366,Machine Learning Engineer,be4b8d7f-1a3c-44bb-b8ce-b36af8ffd3bc,PyTorch,preferred,55,2026-03-01 00:00:00+00:00
+9b09bb5e-1aee-49ee-82de-f05647f66470,Machine Learning Engineer,19ab98e0-e9b3-4445-9e67-9c72f08c607f,Feature Engineering,preferred,55,2026-03-01 00:00:00+00:00
+24a66b25-826b-4684-9973-4c3fdd561fb2,Machine Learning Engineer,f797fc70-163e-44f6-ab10-7b82a05dcd53,SQL,preferred,55,2026-03-01 00:00:00+00:00
+93f27f50-6409-4c03-9e08-7e7bd1d5b57e,Machine Learning Engineer,5612b3f9-7774-4e28-9246-69d9c39f8b45,Docker,preferred,55,2026-03-01 00:00:00+00:00
+422505ed-f155-4b25-82ba-effc31e56477,Machine Learning Engineer,e01d0341-b5bb-4201-bdae-214d38da3b0a,AWS,nice_to_have,40,2026-03-01 00:00:00+00:00
+243a5360-e861-4b67-9b7e-c315e64580e7,Machine Learning Engineer,184f2419-daf1-4d82-8e7f-c5c1c6545193,Kubernetes,nice_to_have,40,2026-03-01 00:00:00+00:00
+4002ccee-0856-4873-8e9e-ae0651def27a,Machine Learning Engineer,b295fa54-5a76-41fc-bc76-90ff263874df,NLP,nice_to_have,40,2026-03-01 00:00:00+00:00
+5e70dc46-7137-4f3b-b01a-03e043f0ca47,Machine Learning Engineer,eb94f91a-a90b-4f50-a184-180b62e95b53,Computer Vision,nice_to_have,40,2026-03-01 00:00:00+00:00
+92b9cea5-3374-422b-b6f7-847784ed7eeb,Data Analyst,f797fc70-163e-44f6-ab10-7b82a05dcd53,SQL,must_have,70,2026-03-01 00:00:00+00:00
+0b70d641-22ca-4188-a2b9-f2b450bd4935,Data Analyst,3b0b98d5-415d-4938-9929-0712c48985d0,Python,must_have,70,2026-03-01 00:00:00+00:00
+1aeec70c-a77a-4c11-89c3-f98e3b456ddd,Data Analyst,e7b8f0d6-268a-4f56-a130-48459630345f,pandas,must_have,70,2026-03-01 00:00:00+00:00
+a96cd04a-5e59-4e9b-be8d-6584fdddf36c,Data Analyst,bffcd18b-0d1f-4c5c-bf6d-5c537c08f119,Data Analysis,must_have,70,2026-03-01 00:00:00+00:00
+f033ec13-e0ea-4d17-b6aa-2674e5bccbd8,Data Analyst,ada9ec21-0d87-44d0-8c34-80411ddc6339,PostgreSQL,must_have,70,2026-03-01 00:00:00+00:00
+d357b062-f665-4944-906e-52296389e2bf,Data Analyst,8a6cfbad-851c-470a-8e93-523adf07c451,Git,must_have,70,2026-03-01 00:00:00+00:00
+139cdc08-8bd5-4654-a842-7bd4c681796f,Data Analyst,8fc9258e-c3eb-4542-9a05-d9ecabc0188b,Machine Learning,preferred,55,2026-03-01 00:00:00+00:00
+4998800e-3c58-4b49-ad1d-d43907d4c27d,Data Analyst,19ab98e0-e9b3-4445-9e67-9c72f08c607f,Feature Engineering,preferred,55,2026-03-01 00:00:00+00:00
+b3b71943-b83f-4244-8f2a-d95a05269032,Data Analyst,dbbde872-29de-4719-8297-1b98a715a2d0,MongoDB,preferred,55,2026-03-01 00:00:00+00:00
+9aca5667-9e18-4a7d-9c06-fb490873c3d6,Data Analyst,5612b3f9-7774-4e28-9246-69d9c39f8b45,Docker,preferred,55,2026-03-01 00:00:00+00:00
+3e11a0f0-a9ce-4416-bf66-1d8373bee154,Data Analyst,e01d0341-b5bb-4201-bdae-214d38da3b0a,AWS,nice_to_have,40,2026-03-01 00:00:00+00:00
+5f3cad5d-528e-4b70-9fc7-1b46ec5afa8d,Data Analyst,ebdb2ff8-dc0b-449e-8135-dfe056e74340,Redis,nice_to_have,40,2026-03-01 00:00:00+00:00
+0f8415d4-0997-4e59-bb0a-6b347bb027bf,Cloud Engineer,e01d0341-b5bb-4201-bdae-214d38da3b0a,AWS,must_have,70,2026-03-01 00:00:00+00:00
+3d730946-c054-428a-87e9-982467297d72,Cloud Engineer,5612b3f9-7774-4e28-9246-69d9c39f8b45,Docker,must_have,70,2026-03-01 00:00:00+00:00
+4368fa9b-6980-4f3c-b696-0bc719b3e549,Cloud Engineer,7d6ab219-a9e7-4e2b-bc8e-e47505629adf,Linux,must_have,70,2026-03-01 00:00:00+00:00
+3a44c926-a5bb-4d06-97de-b3b1d10b8b46,Cloud Engineer,8a6cfbad-851c-470a-8e93-523adf07c451,Git,must_have,70,2026-03-01 00:00:00+00:00
+aa7cc6ab-6347-4023-917a-9d85ec558607,Cloud Engineer,79a64b55-ee75-4cf2-85bd-4776e22c5509,CI/CD,must_have,70,2026-03-01 00:00:00+00:00
+42141ceb-4d1a-4a60-a463-0371962af68c,Cloud Engineer,184f2419-daf1-4d82-8e7f-c5c1c6545193,Kubernetes,must_have,70,2026-03-01 00:00:00+00:00
+c8b156d5-ef63-4250-a83d-951ad44f326f,Cloud Engineer,3b0b98d5-415d-4938-9929-0712c48985d0,Python,preferred,55,2026-03-01 00:00:00+00:00
+2173e3ee-f070-4aa5-8436-cdfae228629e,Cloud Engineer,e2988221-8a86-4ec3-964c-3711fa3d0256,Terraform,preferred,55,2026-03-01 00:00:00+00:00
+ae08e69a-9d7e-449c-9449-64a0cd15ed84,Cloud Engineer,78e01543-fb4a-4ba1-93d0-5eb74ed54bb1,System Design,preferred,55,2026-03-01 00:00:00+00:00
+f3001435-2f4d-4c65-8bad-02ac3f2759e5,Cloud Engineer,ada9ec21-0d87-44d0-8c34-80411ddc6339,PostgreSQL,preferred,55,2026-03-01 00:00:00+00:00
+98f91f99-efaf-41bc-ab55-1ef48630a207,Cloud Engineer,ebdb2ff8-dc0b-449e-8135-dfe056e74340,Redis,nice_to_have,40,2026-03-01 00:00:00+00:00
+dadb91e2-d53a-44c8-9b1a-b072e543721b,Cloud Engineer,dbbde872-29de-4719-8297-1b98a715a2d0,MongoDB,nice_to_have,40,2026-03-01 00:00:00+00:00
+a8786f59-7723-4795-a8d1-877dc2d57bb7,Cloud Engineer,d994fff0-f9fc-4f90-bb0c-42c433c35b49,GraphQL,nice_to_have,40,2026-03-01 00:00:00+00:00
+af48bdb1-b9dc-4161-aa22-d5141586f450,QA/Test Engineer,3b0b98d5-415d-4938-9929-0712c48985d0,Python,must_have,70,2026-03-01 00:00:00+00:00
+5f0d9bc0-df70-4c93-842c-eac5a63a99c3,QA/Test Engineer,8a6cfbad-851c-470a-8e93-523adf07c451,Git,must_have,70,2026-03-01 00:00:00+00:00
+36130c06-b10b-4ed1-afde-c089abbfa6e9,QA/Test Engineer,7dcd0c9f-c244-4c7d-a079-eb2cf788c673,REST APIs,must_have,70,2026-03-01 00:00:00+00:00
+805d1a60-817a-499c-a0f9-3370931bad78,QA/Test Engineer,f797fc70-163e-44f6-ab10-7b82a05dcd53,SQL,must_have,70,2026-03-01 00:00:00+00:00
+00bc64d9-424e-44a5-b69c-3639b31ebb7e,QA/Test Engineer,a85d2ce7-1b18-4b18-b90e-cc527464679f,OOP,must_have,70,2026-03-01 00:00:00+00:00
+e63f3422-29d1-466e-a717-6e987b0287e1,QA/Test Engineer,2689d84a-7312-4cd1-8ec5-c30d03ebd86f,Software Engineering,must_have,70,2026-03-01 00:00:00+00:00
+bd6d4780-61f9-463c-9f9c-850e3c7561c9,QA/Test Engineer,5612b3f9-7774-4e28-9246-69d9c39f8b45,Docker,preferred,55,2026-03-01 00:00:00+00:00
+a4787ce3-e29b-4108-89a0-1face83a9df9,QA/Test Engineer,ada9ec21-0d87-44d0-8c34-80411ddc6339,PostgreSQL,preferred,55,2026-03-01 00:00:00+00:00
+0596fe92-a540-44d7-8d5c-24bfaddbaa48,QA/Test Engineer,79a64b55-ee75-4cf2-85bd-4776e22c5509,CI/CD,preferred,55,2026-03-01 00:00:00+00:00
+9534dd8f-1d86-4f1c-8ef6-a0028b79b8ef,QA/Test Engineer,7d6ab219-a9e7-4e2b-bc8e-e47505629adf,Linux,preferred,55,2026-03-01 00:00:00+00:00
+336c48ca-59d9-4492-a151-a0d63de2c664,QA/Test Engineer,e01d0341-b5bb-4201-bdae-214d38da3b0a,AWS,nice_to_have,40,2026-03-01 00:00:00+00:00
+ae6bade4-7fe8-4c06-9f75-3c6ffe4f46c3,QA/Test Engineer,dbbde872-29de-4719-8297-1b98a715a2d0,MongoDB,nice_to_have,40,2026-03-01 00:00:00+00:00
+0c719cda-2c05-48c3-9e43-72138a11939c,QA/Test Engineer,184f2419-daf1-4d82-8e7f-c5c1c6545193,Kubernetes,nice_to_have,40,2026-03-01 00:00:00+00:00
+eb1c9d8f-4dce-4042-80de-da4ffafc9f36,IoT Engineer,b193732e-b43e-4945-9f6a-3e3d291d593a,C Programming,must_have,70,2026-03-01 00:00:00+00:00
+fa1f5ff3-5b6b-451a-be40-ad9dc5925b5a,IoT Engineer,ac3c9f8f-df3d-4136-a048-307f37be4761,Embedded C,must_have,70,2026-03-01 00:00:00+00:00
+d6ee1c5e-8ce0-4c45-b402-154fbb1cc1a9,IoT Engineer,ae590b5e-16b6-44d8-a9d5-4e42b111e8d3,Microcontrollers,must_have,70,2026-03-01 00:00:00+00:00
+1f01065c-4bc7-41fb-8902-4eca87ae837c,IoT Engineer,3b0b98d5-415d-4938-9929-0712c48985d0,Python,must_have,70,2026-03-01 00:00:00+00:00
+1baa593c-bc2f-4816-976b-d3c3d3e1423d,IoT Engineer,a42c5fa8-6ffb-4ef1-872b-d8fd16086837,Arduino,must_have,70,2026-03-01 00:00:00+00:00
+25d4535a-b03e-48b2-84b7-9f57696b47d2,IoT Engineer,8a6cfbad-851c-470a-8e93-523adf07c451,Git,must_have,70,2026-03-01 00:00:00+00:00
+fc3b8589-70e6-4c04-b97e-c539a5e4db0f,IoT Engineer,1138e3bd-fbf0-4df1-8a2b-13d6f81b2097,RTOS,preferred,55,2026-03-01 00:00:00+00:00
+6b59140d-e135-4e4f-b797-70938427e0b7,IoT Engineer,7d6ab219-a9e7-4e2b-bc8e-e47505629adf,Linux,preferred,55,2026-03-01 00:00:00+00:00
+3056663b-a342-450a-87d3-6b71ee4b7d5f,IoT Engineer,5612b3f9-7774-4e28-9246-69d9c39f8b45,Docker,preferred,55,2026-03-01 00:00:00+00:00
+29b05031-a319-438c-a394-a9fb6234cabd,IoT Engineer,7dcd0c9f-c244-4c7d-a079-eb2cf788c673,REST APIs,preferred,55,2026-03-01 00:00:00+00:00
+30f8d275-9eb1-4044-ac76-93f63ce25abb,IoT Engineer,e01d0341-b5bb-4201-bdae-214d38da3b0a,AWS,nice_to_have,40,2026-03-01 00:00:00+00:00
+c7245cba-77b5-4abf-9090-3d9a80c4bb1c,IoT Engineer,dbbde872-29de-4719-8297-1b98a715a2d0,MongoDB,nice_to_have,40,2026-03-01 00:00:00+00:00
+af1eefc6-f93a-4c99-8965-c0ad20288287,IoT Engineer,79a64b55-ee75-4cf2-85bd-4776e22c5509,CI/CD,nice_to_have,40,2026-03-01 00:00:00+00:00
+4c5bfe25-a038-47a3-854b-7f7faff5a52d,NLP Engineer,3b0b98d5-415d-4938-9929-0712c48985d0,Python,must_have,70,2026-03-01 00:00:00+00:00
+1dbe1e19-e450-461e-ae62-137729e497ca,NLP Engineer,b295fa54-5a76-41fc-bc76-90ff263874df,NLP,must_have,70,2026-03-01 00:00:00+00:00
+d8e365b2-f2e9-4d01-8d90-8d29a228faac,NLP Engineer,8fc9258e-c3eb-4542-9a05-d9ecabc0188b,Machine Learning,must_have,70,2026-03-01 00:00:00+00:00
+f72311b1-2435-4f15-84cd-4619370fc758,NLP Engineer,47d9ed46-f3cc-4904-954a-8e96bdf4751a,Deep Learning,must_have,70,2026-03-01 00:00:00+00:00
+8e92d826-8224-40c9-9cf3-e2fbf5cfddeb,NLP Engineer,e7b8f0d6-268a-4f56-a130-48459630345f,pandas,must_have,70,2026-03-01 00:00:00+00:00
+c36daf1d-0f55-4cd5-b187-021aa29c957a,NLP Engineer,8a6cfbad-851c-470a-8e93-523adf07c451,Git,must_have,70,2026-03-01 00:00:00+00:00
+ee0f685c-909c-4873-9123-a15f6bcc84a5,NLP Engineer,9d1ff361-d523-4b26-a85b-71614521ca74,TensorFlow,preferred,55,2026-03-01 00:00:00+00:00
+ec412ee9-0a8d-4534-9f6a-71a496f145c3,NLP Engineer,be4b8d7f-1a3c-44bb-b8ce-b36af8ffd3bc,PyTorch,preferred,55,2026-03-01 00:00:00+00:00
+e484eaa4-96bd-4903-906d-00e5135c3fc9,NLP Engineer,f797fc70-163e-44f6-ab10-7b82a05dcd53,SQL,preferred,55,2026-03-01 00:00:00+00:00
+6d3134d9-90d5-4fde-ba10-6561391fcda5,NLP Engineer,5612b3f9-7774-4e28-9246-69d9c39f8b45,Docker,preferred,55,2026-03-01 00:00:00+00:00
+f463d924-a28f-4769-9e4e-5059332a01c4,NLP Engineer,e01d0341-b5bb-4201-bdae-214d38da3b0a,AWS,nice_to_have,40,2026-03-01 00:00:00+00:00
+0db4dbb8-1de0-4576-adb2-8e0c5d0eb0bd,NLP Engineer,dbbde872-29de-4719-8297-1b98a715a2d0,MongoDB,nice_to_have,40,2026-03-01 00:00:00+00:00
+c7c01c61-55d4-49be-806d-ac0635d393bd,NLP Engineer,eb94f91a-a90b-4f50-a184-180b62e95b53,Computer Vision,nice_to_have,40,2026-03-01 00:00:00+00:00
+c7f5db10-e220-4a67-8e7f-fd59e857e803,NLP Engineer,184f2419-daf1-4d82-8e7f-c5c1c6545193,Kubernetes,nice_to_have,40,2026-03-01 00:00:00+00:00
+a5004c16-e162-40b3-bee0-c279ef64f952,Mechanical Design Engineer,68e12a76-021c-4a67-a5f1-28e7d8eae6e6,CAD Design,must_have,70,2026-03-01 00:00:00+00:00
+e5f2dc27-d4e7-427c-b52a-8f64ad008482,Mechanical Design Engineer,c06e4bc7-4247-4d78-b4a6-12c796de3f09,Strength of Materials,must_have,70,2026-03-01 00:00:00+00:00
+89fb4ae7-8356-4467-8051-14f541285cd4,Mechanical Design Engineer,e475c760-4ba0-468e-8b97-d9cb24eebe36,Manufacturing Processes,preferred,55,2026-03-01 00:00:00+00:00
+2f292783-f7ec-4455-a23f-e75b2182846d,Mechanical Design Engineer,d8722ed6-d779-4aa8-9bc1-a70b8df9db92,Thermodynamics,preferred,55,2026-03-01 00:00:00+00:00
+0969b9d4-afeb-4756-ad6d-0ba52caa4154,Mechanical Design Engineer,11a1189f-736d-470e-949b-93c4fff82d0c,Heat Transfer,preferred,55,2026-03-01 00:00:00+00:00
+a128790f-a3de-47db-9339-1d96aff2b890,Mechanical Design Engineer,a27839e4-e217-4938-a5b9-a64fd61dfa3c,Fluid Mechanics,nice_to_have,40,2026-03-01 00:00:00+00:00
+4fec74c8-2346-46e9-9d63-05e8c68641b4,Mechanical Design Engineer,3b0b98d5-415d-4938-9929-0712c48985d0,Python,nice_to_have,40,2026-03-01 00:00:00+00:00
+6e70f5f3-3bec-425c-b2d0-5b0e9689d60f,Manufacturing Engineer,e475c760-4ba0-468e-8b97-d9cb24eebe36,Manufacturing Processes,must_have,70,2026-03-01 00:00:00+00:00
+d859a2d0-a58f-4fe0-bf9c-c7320c5ae1c7,Manufacturing Engineer,68e12a76-021c-4a67-a5f1-28e7d8eae6e6,CAD Design,must_have,70,2026-03-01 00:00:00+00:00
+7796bbe7-55c5-4bd2-a76d-da79fb59c312,Manufacturing Engineer,c06e4bc7-4247-4d78-b4a6-12c796de3f09,Strength of Materials,preferred,55,2026-03-01 00:00:00+00:00
+a835c133-21f4-4339-9163-3acc83b5d7cc,Manufacturing Engineer,bffcd18b-0d1f-4c5c-bf6d-5c537c08f119,Data Analysis,preferred,55,2026-03-01 00:00:00+00:00
+79842b31-7f00-4091-ba4a-dd7ed1dad0d8,Manufacturing Engineer,3b0b98d5-415d-4938-9929-0712c48985d0,Python,nice_to_have,40,2026-03-01 00:00:00+00:00
+495ff956-b5ce-4fd1-b05b-98d6139bc000,Manufacturing Engineer,8fc9258e-c3eb-4542-9a05-d9ecabc0188b,Machine Learning,nice_to_have,40,2026-03-01 00:00:00+00:00
+6975af76-6334-4403-b488-0fc7cbafaa05,Automotive Engineer,d8722ed6-d779-4aa8-9bc1-a70b8df9db92,Thermodynamics,must_have,70,2026-03-01 00:00:00+00:00
+2f28f93d-d764-401b-ad06-94a325c14e68,Automotive Engineer,c06e4bc7-4247-4d78-b4a6-12c796de3f09,Strength of Materials,must_have,70,2026-03-01 00:00:00+00:00
+526f10be-a8bc-4610-b5f4-c40809fe2d08,Automotive Engineer,a27839e4-e217-4938-a5b9-a64fd61dfa3c,Fluid Mechanics,must_have,70,2026-03-01 00:00:00+00:00
+f7ead242-ef79-4488-97d3-eddb929c59da,Automotive Engineer,68e12a76-021c-4a67-a5f1-28e7d8eae6e6,CAD Design,preferred,55,2026-03-01 00:00:00+00:00
+d97a79d1-6c02-4417-a622-f2fb09ed3666,Automotive Engineer,e475c760-4ba0-468e-8b97-d9cb24eebe36,Manufacturing Processes,preferred,55,2026-03-01 00:00:00+00:00
+5b0f7c38-0b32-4053-8d93-7112731bc6c8,Automotive Engineer,11a1189f-736d-470e-949b-93c4fff82d0c,Heat Transfer,nice_to_have,40,2026-03-01 00:00:00+00:00
+167576eb-ff5e-4caa-9f99-b73f7cd79002,Automotive Engineer,ae590b5e-16b6-44d8-a9d5-4e42b111e8d3,Microcontrollers,nice_to_have,40,2026-03-01 00:00:00+00:00
+8bdbd8a3-1d9d-4a64-9745-171c065a2737,HVAC Engineer,d8722ed6-d779-4aa8-9bc1-a70b8df9db92,Thermodynamics,must_have,70,2026-03-01 00:00:00+00:00
+363f30f4-7175-4c2f-b45a-ea9b2403faf3,HVAC Engineer,11a1189f-736d-470e-949b-93c4fff82d0c,Heat Transfer,must_have,70,2026-03-01 00:00:00+00:00
+e187e4d9-029b-496d-b1e2-da56c70b7168,HVAC Engineer,a27839e4-e217-4938-a5b9-a64fd61dfa3c,Fluid Mechanics,must_have,70,2026-03-01 00:00:00+00:00
+d50b9491-9d9e-4870-9914-31d4eb009d35,HVAC Engineer,68e12a76-021c-4a67-a5f1-28e7d8eae6e6,CAD Design,preferred,55,2026-03-01 00:00:00+00:00
+c61cf81f-2043-42cb-8d38-ae5e20d57f78,HVAC Engineer,c06e4bc7-4247-4d78-b4a6-12c796de3f09,Strength of Materials,preferred,55,2026-03-01 00:00:00+00:00
+47f22855-1270-4141-9cd9-86d1fb9f9bdf,HVAC Engineer,e475c760-4ba0-468e-8b97-d9cb24eebe36,Manufacturing Processes,nice_to_have,40,2026-03-01 00:00:00+00:00
+b4a0f992-907a-4d8b-9caf-a9f903b2625e,Robotics/Mechatronics Engineer,b193732e-b43e-4945-9f6a-3e3d291d593a,C Programming,must_have,70,2026-03-01 00:00:00+00:00
+dd39a9bf-1eb0-484c-8053-8dc6b32687b8,Robotics/Mechatronics Engineer,ae590b5e-16b6-44d8-a9d5-4e42b111e8d3,Microcontrollers,must_have,70,2026-03-01 00:00:00+00:00
+5e342db5-03de-492f-8e8f-af2c2e1fc3a9,Robotics/Mechatronics Engineer,3b0b98d5-415d-4938-9929-0712c48985d0,Python,must_have,70,2026-03-01 00:00:00+00:00
+58f4a8ab-9ec7-4881-9d0f-8a5b4f461884,Robotics/Mechatronics Engineer,68e12a76-021c-4a67-a5f1-28e7d8eae6e6,CAD Design,must_have,70,2026-03-01 00:00:00+00:00
+56cfac01-1292-4f1f-8f78-8f3de095f062,Robotics/Mechatronics Engineer,8fc9258e-c3eb-4542-9a05-d9ecabc0188b,Machine Learning,preferred,55,2026-03-01 00:00:00+00:00
+4b9ce824-54ad-4629-8e67-6ce2607bdca5,Robotics/Mechatronics Engineer,ac3c9f8f-df3d-4136-a048-307f37be4761,Embedded C,preferred,55,2026-03-01 00:00:00+00:00
+fd2b1dc4-831a-418b-925b-9cdbc8c03134,Robotics/Mechatronics Engineer,e475c760-4ba0-468e-8b97-d9cb24eebe36,Manufacturing Processes,preferred,55,2026-03-01 00:00:00+00:00
+610d2d08-1959-491b-99cd-d6abd6289483,Robotics/Mechatronics Engineer,eb94f91a-a90b-4f50-a184-180b62e95b53,Computer Vision,nice_to_have,40,2026-03-01 00:00:00+00:00
+0f3842e0-a5cb-4bb7-8f85-fe49fbae0276,Robotics/Mechatronics Engineer,7d6ab219-a9e7-4e2b-bc8e-e47505629adf,Linux,nice_to_have,40,2026-03-01 00:00:00+00:00
+c043669e-c1f3-4554-8564-30c7893adc7f,AI Engineer,3b0b98d5-415d-4938-9929-0712c48985d0,Python,must_have,70,2026-07-12 12:37:44+00:00
+5857de13-a0e2-4826-8f49-960153c8f338,AI Engineer,8fc9258e-c3eb-4542-9a05-d9ecabc0188b,Machine Learning,must_have,70,2026-07-12 12:37:44+00:00
+65f6e866-6098-44f9-96cc-6f0b79e76ce0,AI Engineer,47d9ed46-f3cc-4904-954a-8e96bdf4751a,Deep Learning,must_have,70,2026-07-12 12:37:44+00:00
+59eed871-a468-4a13-82d9-899847d10d1b,AI Engineer,b295fa54-5a76-41fc-bc76-90ff263874df,NLP,must_have,70,2026-07-12 12:37:44+00:00
+1a22056b-8ffa-4a05-9a51-40c359bd67b1,AI Engineer,78e01543-fb4a-4ba1-93d0-5eb74ed54bb1,System Design,preferred,55,2026-07-12 12:37:44+00:00
+61268ec7-fb10-4987-abcc-517f5b4f10ac,AI Engineer,e383651c-ba76-489e-af69-1a579f42902c,scikit-learn,preferred,55,2026-07-12 12:37:44+00:00
+cdec79c0-4c34-46fe-b85e-6049ebb08357,AI Engineer,be4b8d7f-1a3c-44bb-b8ce-b36af8ffd3bc,PyTorch,must_have,70,2026-07-12 12:37:44+00:00
+3990ac3d-0b90-4b9e-a2db-d2d591010cdb,AI Engineer,8a6cfbad-851c-470a-8e93-523adf07c451,Git,must_have,70,2026-07-12 12:37:44+00:00
+58b2a671-31a5-4680-a638-5ae42b2fab22,AI Engineer,f797fc70-163e-44f6-ab10-7b82a05dcd53,SQL,preferred,55,2026-07-12 12:37:44+00:00
+948529c2-efbc-419b-b9ac-dc24fedcba80,Computer Vision Engineer,3b0b98d5-415d-4938-9929-0712c48985d0,Python,must_have,70,2026-07-12 12:37:44+00:00
+a2d329b9-b6eb-4377-89b0-1f3b6f098730,Computer Vision Engineer,8fc9258e-c3eb-4542-9a05-d9ecabc0188b,Machine Learning,must_have,70,2026-07-12 12:37:44+00:00
+27e936df-3cca-4835-a582-425da0da334d,Computer Vision Engineer,47d9ed46-f3cc-4904-954a-8e96bdf4751a,Deep Learning,must_have,70,2026-07-12 12:37:44+00:00
+d772954c-c48f-4de4-911a-86bf069f8d32,Computer Vision Engineer,eb94f91a-a90b-4f50-a184-180b62e95b53,Computer Vision,must_have,70,2026-07-12 12:37:44+00:00
+b5861ad0-d9f8-4e26-9fc5-5a5b4d95b2f7,Computer Vision Engineer,be4b8d7f-1a3c-44bb-b8ce-b36af8ffd3bc,PyTorch,must_have,70,2026-07-12 12:37:44+00:00
+7743b57e-54d2-4962-8c97-6979f6387117,Computer Vision Engineer,e383651c-ba76-489e-af69-1a579f42902c,scikit-learn,preferred,55,2026-07-12 12:37:44+00:00
+b1175958-15d1-4538-af44-6f99767080a2,Computer Vision Engineer,8a6cfbad-851c-470a-8e93-523adf07c451,Git,must_have,70,2026-07-12 12:37:44+00:00
+fe21b9a5-e20d-4b95-a5f8-195f44f5392b,Computer Vision Engineer,5612b3f9-7774-4e28-9246-69d9c39f8b45,Docker,preferred,55,2026-07-12 12:37:44+00:00
+d5ac7bed-9c39-475f-bd0b-b3dc306f582f,MLOps Engineer,3b0b98d5-415d-4938-9929-0712c48985d0,Python,must_have,70,2026-07-12 12:37:44+00:00
+099bcf94-24d4-420f-9016-b376608dbbb1,MLOps Engineer,8fc9258e-c3eb-4542-9a05-d9ecabc0188b,Machine Learning,preferred,55,2026-07-12 12:37:44+00:00
+57bce17d-1bea-425a-9e43-536bea52b2e9,MLOps Engineer,5612b3f9-7774-4e28-9246-69d9c39f8b45,Docker,must_have,70,2026-07-12 12:37:44+00:00
+f1124f44-bdcc-49e9-832d-abdedfa2a392,MLOps Engineer,184f2419-daf1-4d82-8e7f-c5c1c6545193,Kubernetes,preferred,55,2026-07-12 12:37:44+00:00
+df930503-cf89-4cc8-bbee-bfda51bd58b2,MLOps Engineer,79a64b55-ee75-4cf2-85bd-4776e22c5509,CI/CD,must_have,70,2026-07-12 12:37:44+00:00
+5d895a26-54cb-4e46-afac-bf8c825d1e42,MLOps Engineer,8a6cfbad-851c-470a-8e93-523adf07c451,Git,must_have,70,2026-07-12 12:37:44+00:00
+f6786f20-2738-4d4d-9cbb-f8933b376063,MLOps Engineer,e01d0341-b5bb-4201-bdae-214d38da3b0a,AWS,preferred,55,2026-07-12 12:37:44+00:00
+d0b0e333-1715-4502-ade9-ad6da798c87a,MLOps Engineer,e2988221-8a86-4ec3-964c-3711fa3d0256,Terraform,preferred,55,2026-07-12 12:37:44+00:00
+c3cd3242-4bdb-43a1-a419-78c09ee8c7e1,AI Engineer,6a3863de-27ea-414d-b2dc-8a9ad879526c,Prompt Engineering,preferred,55,2026-07-12 12:37:44+00:00
+fc6302cd-d330-49a3-8337-2584d6120dc5,AI Engineer,10c65783-f107-461f-a1e8-f9120338ce11,LLM Integration,preferred,55,2026-07-12 12:37:44+00:00
+86fb57d7-23e2-4693-946b-4e794af8f31e,AI Engineer,4b760d80-f3c4-4306-b56b-b23f742799bb,LangChain,nice_to_have,40,2026-07-12 12:37:44+00:00
+41dcee20-51c0-4003-9013-0498d9cfe40f,AI Engineer,c505a099-73cc-4c5d-9c32-b3867d8b4c18,Vector Databases,preferred,55,2026-07-12 12:37:44+00:00
+a13f0d76-9fca-4257-8f9e-ff00cdabc736,AI Engineer,7dcd0c9f-c244-4c7d-a079-eb2cf788c673,REST APIs,must_have,70,2026-07-12 12:37:44+00:00
+2825c938-0776-442a-9811-a880a79fe209,AI Engineer,bb4313b0-b922-45f8-b8b8-fc6c2c6afee7,RAG Concepts,preferred,55,2026-07-12 12:37:44+00:00
+2cf4f9c6-c170-4e08-8c0c-a1e22b641cfe,Computer Vision Engineer,fab7e2ac-eea8-4156-95dd-fb3e536b4ad2,OpenCV,must_have,70,2026-07-12 12:37:44+00:00
+9800fbca-bdfd-47cf-bded-bdb6a400f21a,Computer Vision Engineer,99fa16a8-7bac-4a4f-a61e-033a957ca0b6,CNN Architectures,must_have,70,2026-07-12 12:37:44+00:00
+90924725-a6f3-409a-b836-bd23773df6e0,Computer Vision Engineer,8d2e8902-520b-4796-b48b-2c41f713f634,Image Preprocessing,preferred,55,2026-07-12 12:37:44+00:00
+be13657b-f0d1-4fc9-a288-c97822006848,Computer Vision Engineer,5d69ebea-78b8-4b64-9c5e-dcf2fba6e559,Object Detection,preferred,55,2026-07-12 12:37:44+00:00
+b46a0a60-a63a-4d5c-b423-5da80cae7607,Computer Vision Engineer,c7a8553c-4786-4b59-8f0a-c19d663c8f02,Image Segmentation,nice_to_have,40,2026-07-12 12:37:44+00:00
+220c6cf3-37a1-4920-93a3-2123bccfec58,Computer Vision Engineer,cf12682f-f740-4f09-8fe3-67c36dcb6005,GPU/CUDA Basics,nice_to_have,40,2026-07-12 12:37:44+00:00
+a8ed8752-b5bf-4b2a-b496-43e2606127d8,MLOps Engineer,97e1b09d-cffe-4950-866e-cd6060a65928,Model Serving,must_have,70,2026-07-12 12:37:44+00:00
+ec911585-628f-47a3-9f40-d8a25bce45f3,MLOps Engineer,d46e5b55-6c2c-45be-b63d-b54e06db39ef,Model Monitoring,preferred,55,2026-07-12 12:37:44+00:00
