@@ -14,6 +14,7 @@ from app.models.learning_resource import LearningResource
 from app.models.student_skill import StudentSkill
 from app.utils.academic import score_to_level
 from app.modules.skills.engine import compute_gaps_for_student
+from app.modules.skills.service import find_skill_by_topic
 from app.core.config import settings
 from typing import Optional
 
@@ -650,17 +651,7 @@ async def update_roadmap_with_weak_skills(db: Session, roadmap: Roadmap, weak_sk
     current_order = (max_order or 0) + 1
     
     for topic in weak_skills:
-        # Match topic to skill
-        tax = (
-            db.query(SkillTaxonomy)
-            .filter(
-                sa.or_(
-                    sa.func.lower(SkillTaxonomy.skill_name) == topic.lower(),
-                    sa.func.array_to_string(SkillTaxonomy.aliases, ",").ilike(f"%{topic}%"),
-                )
-            )
-            .first()
-        )
+        tax = find_skill_by_topic(db, topic)
         if not tax:
             continue
             

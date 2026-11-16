@@ -619,8 +619,13 @@ async def websocket_interview(
 
                                 # After the client is told, so a slow or failing roadmap update never blocks it.
                                 try:
+                                    from app.models.skill_taxonomy import SkillTaxonomy
                                     from app.modules.roadmap.service import get_active_roadmap, update_roadmap_with_weak_skills
                                     weak_skills = extract_weak_skills(session.questions)
+                                    if weak_skills and session.associated_skill_id and not session.project_id:
+                                        # Topic and micro sessions are about one skill, whatever topic text the LLM wrote.
+                                        own_skill = db.query(SkillTaxonomy).filter(SkillTaxonomy.id == session.associated_skill_id).first()
+                                        weak_skills = [own_skill.skill_name]
                                     roadmap = get_active_roadmap(db, user.id)
                                     if roadmap and weak_skills:
                                         await update_roadmap_with_weak_skills(db, roadmap, weak_skills)

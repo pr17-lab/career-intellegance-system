@@ -1161,40 +1161,21 @@ Return ONLY a valid JSON object matching this schema exactly:
         question.improvement = reply.improvement
         question.evaluated_at = datetime.now(timezone.utc)
 
-        import sqlalchemy as sa
         from app.models.student_skill import StudentSkill
         from app.models.skill_taxonomy import SkillTaxonomy
         from app.modules.skills.engine import calculate_composite_score
+        from app.modules.skills.service import find_skill_by_topic
         from app.utils.academic import score_to_level
 
         topic = question.topic
         tech_score = reply.technical_score
         comm_score = reply.communication_score
 
-        if db.bind.dialect.name == "sqlite":
-            tax = (
-                db.query(SkillTaxonomy)
-                .filter(sa.func.lower(SkillTaxonomy.skill_name) == topic.lower())
-                .first()
-            )
-            if not tax:
-                # SQLite fallback python-based aliases search
-                all_tax = db.query(SkillTaxonomy).all()
-                for t in all_tax:
-                    if t.aliases and any(topic.lower() in str(a).lower() for a in t.aliases):
-                        tax = t
-                        break
+        session = question.session
+        if session.associated_skill_id and not session.project_id:
+            tax = db.query(SkillTaxonomy).filter(SkillTaxonomy.id == session.associated_skill_id).first()
         else:
-            tax = (
-                db.query(SkillTaxonomy)
-                .filter(
-                    sa.or_(
-                        sa.func.lower(SkillTaxonomy.skill_name) == topic.lower(),
-                        sa.func.array_to_string(SkillTaxonomy.aliases, ",").ilike(f"%{topic}%"),
-                    )
-                )
-                .first()
-            )
+            tax = find_skill_by_topic(db, topic)
 
         new_conf = 0.0
         new_level = "weak"
@@ -1211,7 +1192,7 @@ Return ONLY a valid JSON object matching this schema exactly:
                 ss = StudentSkill(
                     user_id=user_id,
                     skill_id=tax.id,
-                    resume_weight=50.0,
+                    resume_weight=0.0,
                     project_weight=0.0,
                     interview_weight=0.0,
                     communication_weight=0.0,
@@ -1251,7 +1232,6 @@ Return ONLY a valid JSON object matching this schema exactly:
         db.refresh(question)
 
         # Hook WebSocket Calibration into Roadmap Progress for micro-interviews
-        session = question.session
         if session and session.is_micro:
             all_questions = session.questions
             all_evaluated = all(q.ai_score is not None for q in all_questions)
@@ -1338,17 +1318,8 @@ Return ONLY a valid JSON object matching this schema exactly:
 
                         if skills_list:
                             for sname in set(skills_list):
-                                # Look up skill in taxonomy
                                 is_sqlite = db.bind.dialect.name == "sqlite"
-                                if is_sqlite:
-                                    tax = db.query(SkillTaxonomy).filter(sa.func.lower(SkillTaxonomy.skill_name) == sname.lower()).first()
-                                else:
-                                    tax = db.query(SkillTaxonomy).filter(
-                                        sa.or_(
-                                            sa.func.lower(SkillTaxonomy.skill_name) == sname.lower(),
-                                            sa.func.array_to_string(SkillTaxonomy.aliases, ",").ilike(f"%{sname}%"),
-                                        )
-                                    ).first()
+                                tax = find_skill_by_topic(db, sname)
 
                                 if tax:
                                     ss = db.query(StudentSkill).filter(
