@@ -575,7 +575,7 @@ function RoadmapDetailView({ roadmapId }: { roadmapId: string }) {
       showToast('success', res.message);
     },
     onError: (err: any) => {
-      showToast('error', err.response?.data?.detail || 'Failed to submit vote');
+      showToast('error', err.message || 'Failed to submit vote');
     }
   });
 
