@@ -4,7 +4,20 @@ Pydantic schemas for the Authentication module (login, registration, user respon
 
 from uuid import UUID
 from typing import Optional
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
+
+
+BCRYPT_MAX_BYTES = 72
+
+
+def _check_password_bytes(value: str) -> str:
+    """Reject (never truncate) passwords bcrypt cannot hash: over 72 bytes as UTF-8."""
+    if len(value.encode('utf-8')) > BCRYPT_MAX_BYTES:
+        raise ValueError(
+            f"Password must be at most {BCRYPT_MAX_BYTES} bytes when encoded as UTF-8 "
+            "(fewer characters if it contains emoji or non-ASCII letters)."
+        )
+    return value
 
 
 # ---------------------------------------------------------------------------
@@ -40,7 +53,12 @@ class UpdateProfileRequest(BaseModel):
 class ChangePasswordRequest(BaseModel):
     """Payload for PUT /auth/change-password."""
     current_password: str
-    new_password: str = Field(..., min_length=8, max_length=72)  # bcrypt limit
+    new_password: str = Field(..., min_length=8)
+
+    @field_validator('new_password')
+    @classmethod
+    def _new_password_bytes(cls, v: str) -> str:
+        return _check_password_bytes(v)
 
 
 # ---------------------------------------------------------------------------
@@ -51,7 +69,12 @@ class StudentRegistration(BaseModel):
     full_name: str
     email: EmailStr
     student_id: str | None = None
-    password: str = Field(..., max_length=72)  # bcrypt limit
+    password: str
     department: str
     batch_year: int
     current_semester: int
+
+    @field_validator('password')
+    @classmethod
+    def _password_bytes(cls, v: str) -> str:
+        return _check_password_bytes(v)

@@ -12,6 +12,10 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     if isinstance(hashed_password, str):
         hashed_password = hashed_password.encode('utf-8')
     
+    # bcrypt cannot hash (so no stored hash can match) a password over 72 bytes
+    if len(plain_password) > 72:
+        return False
+
     return bcrypt.checkpw(plain_password, hashed_password)
 
 def get_password_hash(password: str) -> str:
