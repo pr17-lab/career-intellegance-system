@@ -1556,16 +1556,18 @@ function WebSocketInterviewRoom({ sessionId, onCompleted, onGoToLobby }: WebSock
                             <div className={`h-10 w-10 shrink-0 rounded-full border-2 flex items-center justify-center font-bold text-sm ${
                                 Number(evalResult.technical_score ?? evalResult.ai_score) >= 7 ? 'border-emerald-500 text-emerald-500' : 'border-amber-500 text-amber-500'
                             }`}>
-                                {evalResult.technical_score ?? evalResult.ai_score}
+                                {evalResult.technical_score ?? evalResult.ai_score ?? '–'}
                             </div>
                             <div className="flex-1">
                                 <div className="flex items-center gap-2">
                                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                                         evalResult.verdict === 'Strong' || evalResult.ai_verdict === 'Strong' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400'
                                     }`}>
-                                        {evalResult.verdict ?? evalResult.ai_verdict ?? 'Adequate'}
+                                        {evalResult.verdict ?? evalResult.ai_verdict ?? 'Not scored'}
                                     </span>
-                                    <span className="text-[10px] text-gray-400 dark:text-zinc-500">Live calibration complete</span>
+                                    {(evalResult.technical_score ?? evalResult.ai_score) != null && (
+                                        <span className="text-[10px] text-gray-400 dark:text-zinc-500">Live calibration complete</span>
+                                    )}
                                 </div>
                                 <p className="text-xs text-gray-600 dark:text-zinc-300 mt-1 italic">"{evalResult.feedback || evalResult.ai_feedback || 'Well analyzed answer.'}"</p>
                             </div>

@@ -27,10 +27,12 @@ from uuid import UUID
 
 import httpx
 from fastapi import HTTPException
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import desc
 
 from app.core.config import settings
+from app.modules.interview.prompts import GRADING_SYSTEM_PROMPT, build_grading_message
 from app.models.interview import InterviewSession, InterviewQuestion, SessionStatus
 
 logger = logging.getLogger(__name__)
@@ -102,6 +104,71 @@ def _strip_json_fences(raw: str) -> str:
             raw = raw[:-3].strip()
     return raw
 
+
+
+class GradingResult(BaseModel):
+    """The only reply shape we accept from the grading model."""
+    technical_score: int = Field(strict=True, ge=0, le=10)
+    communication_score: int = Field(strict=True, ge=0, le=10)
+    feedback: str
+    mistakes: list[str]
+    improvement: str
+    model_answer: str
+
+
+def _verdict(technical_score: int) -> str:
+    if technical_score >= 8:
+        return "Strong"
+    if technical_score >= 5:
+        return "Adequate"
+    return "Weak"
+
+
+async def _gemini_grade(user_message: str) -> str:
+    if not settings.GEMINI_API_KEY:
+        raise ValueError("GEMINI_API_KEY not configured")
+    url = (
+        f"https://generativelanguage.googleapis.com/v1beta/models/"
+        f"{settings.GEMINI_MODEL}:generateContent"
+    )
+    payload = {
+        "systemInstruction": {"parts": [{"text": GRADING_SYSTEM_PROMPT}]},
+        "contents": [{"role": "user", "parts": [{"text": user_message}]}],
+        "generationConfig": {"temperature": 0.3, "response_mime_type": "application/json"},
+    }
+    async with httpx.AsyncClient(timeout=90.0) as client_http:
+        resp = await client_http.post(url, json=payload, headers=_gemini_headers())
+        resp.raise_for_status()
+        return resp.json()["candidates"][0]["content"]["parts"][0]["text"]
+
+
+async def _groq_grade(user_message: str) -> str:
+    if not settings.GROQ_API_KEY:
+        raise ValueError("GROQ_API_KEY not configured")
+    from groq import AsyncGroq
+    client = AsyncGroq(api_key=settings.GROQ_API_KEY)
+    response = await client.chat.completions.create(
+        model=settings.GROQ_MODEL,
+        messages=[
+            {"role": "system", "content": GRADING_SYSTEM_PROMPT},
+            {"role": "user", "content": user_message},
+        ],
+        temperature=0.3,
+        max_tokens=4000,
+        response_format={"type": "json_object"},
+    )
+    return response.choices[0].message.content or ""
+
+
+async def _grade_answer(user_message: str) -> Optional[GradingResult]:
+    """Gemini first, then Groq once. None means neither gave a valid grade."""
+    for name, ask in (("Gemini", _gemini_grade), ("Groq", _groq_grade)):
+        try:
+            raw = await ask(user_message)
+            return GradingResult.model_validate_json(_strip_json_fences(raw))
+        except Exception as e:
+            logger.warning("%s grading failed: %s", name, e)
+    return None
 
 
 def _clean_text(t: str) -> str:
@@ -1282,6 +1349,34 @@ Return ONLY the JSON array. No other text."""
             "questions": results,
         }
 
+    def _grading_message(self, db: Session, question: InterviewQuestion, user_answer: str, user_id: uuid.UUID) -> str:
+        session = question.session
+        mode, details, level = "general", "", ""
+
+        if session.project_id:
+            from app.models.student_project import StudentProject
+            project = db.query(StudentProject).filter(StudentProject.id == session.project_id).first()
+            if project:
+                mode = "project"
+                details = (
+                    f"Project: {project.title}\nDescription: {project.description or ''}\n"
+                    f"Tech stack: {project.tech_stack or []}\nSkills: {project.extracted_skills or []}"
+                )
+        elif session.associated_skill_id:
+            from app.models.skill_taxonomy import SkillTaxonomy
+            from app.models.student_skill import StudentSkill
+            skill = db.query(SkillTaxonomy).filter(SkillTaxonomy.id == session.associated_skill_id).first()
+            if skill:
+                ss = db.query(StudentSkill).filter(
+                    StudentSkill.user_id == user_id,
+                    StudentSkill.skill_id == skill.id,
+                ).first()
+                mode = "topic"
+                details = f"Skill: {skill.skill_name}\nDescription: {skill.description or ''}"
+                level = (ss.level if ss else None) or "missing"
+
+        return build_grading_message(mode, details, level, question.question, user_answer)
+
     async def evaluate_single_answer_async(
         self,
         db: Session,
@@ -1310,331 +1405,26 @@ Return ONLY the JSON array. No other text."""
 
         question.user_answer = user_answer
 
-        if question.session.project_id:
-            from app.models.student_project import StudentProject
-            project = db.query(StudentProject).filter(StudentProject.id == question.session.project_id).first()
-            if project:
-                skills_list = []
-                if project.extracted_skills:
-                    if isinstance(project.extracted_skills, list):
-                        skills_list.extend(project.extracted_skills)
-                    elif isinstance(project.extracted_skills, str):
-                        try:
-                            skills_list.extend(json.loads(project.extracted_skills))
-                        except Exception:
-                            pass
-                if project.tech_stack:
-                    skills_list.extend(project.tech_stack)
-
-                # Check if this is the final question of the project session
-                is_final_question = False
-                sibling_questions = question.session.questions
-                unanswered_siblings = [q for q in sibling_questions if q.id != question_id and (q.user_answer is None or not q.user_answer.strip())]
-                if len(unanswered_siblings) == 0:
-                    is_final_question = True
-
-                project_prompt = f"""You are a senior technical interviewer conducting a project deep-dive with
-a final-year engineering student, in the style of "walk me through this
-project" questions from a real interview. Your goal is to verify genuine
-understanding of a project the student has listed on their profile — not
-just that the repository exists, but that they can defend the decisions
-in it.
-
-PROJECT NAME: {project.title}
-PROJECT DESCRIPTION: {project.description or ""}
-DETECTED TECH STACK: {project.tech_stack or []}
-SKILL TAGS ASSOCIATED WITH THIS PROJECT: {skills_list}
-
-IMPORTANT: Ground every question in the actual project details above.
-Do not ask generic role-fit or textbook questions that any student could
-answer without having built this specific project. If the provided
-context is thin (e.g. a sparse README), it is fine to ask the student to
-first describe the project in their own words, then use their description
-to inform your follow-ups.
-
-HOW TO CONDUCT THIS INTERVIEW
-1. Open with: "Walk me through {project.title} — what does it do and why
-   did you build it that way?" and let them describe it in their own words.
-2. Based on their description AND the tech stack/structure context, ask
-   3-5 follow-ups probing genuine understanding, for example:
-   - Why a specific technology/library was chosen over an obvious alternative
-     (e.g. "why FastAPI over Django here?")
-   - What would break or need to change if a stated constraint changed
-     (e.g. "what would you need to change if this had to handle 100x the
-     traffic?")
-   - A specific implementation detail visible in the stack/structure
-     ("how does {{specific_component}} actually work under the hood?")
-   - A tradeoff or limitation they may not have considered
-     ("what's the biggest weakness in this design as it stands?")
-3. If an answer sounds rehearsed, vague, or inconsistent with the stated
-   tech stack, probe once more before moving on — this is the core
-   anti-gaming mechanism of this interview type, so don't let a vague
-   answer pass unchallenged, but stay constructive in tone.
-4. Keep your own turns short — 1-3 sentences per turn.
-
-AFTER EACH ANSWER, return a JSON object with this exact structure and
-nothing else (no prose outside the JSON):
-
-{{
-  "question_asked": "<the question you just asked>",
-  "student_answer_summary": "<one-sentence neutral summary of what they said>",
-  "depth_signal": "genuine_understanding" | "surface_level" | "inconsistent_with_repo" | "unclear",
-  "score": <integer 0-10>,
-  "ai_feedback": "<2-3 sentences on the specific answer>",
-  "mistakes": ["<specific gap, inconsistency, or vague spot, if any>", "..."],
-  "next_action": "follow_up" | "next_question" | "end_session"
-}}
-
-END OF SESSION
-After 3-5 questions, or if the student asks to stop, set next_action to
-"end_session" and return a final summary instead:
-
-{{
-  "session_summary": "<3-4 sentences on how well the student demonstrated
-  real ownership and understanding of this project>",
-  "overall_score": <integer 0-10>,
-  "depth_verified_recommendation": true | false,
-  "reasoning": "<1-2 sentences justifying the depth_verified_recommendation
-  — be conservative; only recommend true if the student clearly demonstrated
-  they understand the implementation, not just the concept of the project>",
-  "strengths": ["...", "..."],
-  "gaps_to_work_on": ["...", "..."]
-}}
-
-TONE
-Skeptical but fair — like an interviewer who has seen plenty of
-AI-generated or copy-pasted projects and knows the difference between
-someone who built something and someone who can only describe it. Do not
-be hostile; if the student demonstrates real understanding, say so
-plainly and move on rather than continuing to probe for gaps that aren't there.
-"""
-                if is_final_question:
-                    schema_rules = """
-Return ONLY a valid JSON object matching this schema exactly:
-{
-  "technical_score": 1..10,
-  "communication_score": 1..10,
-  "verdict": "Strong|Adequate|Weak",
-  "feedback": "Concise 1-2 sentences of feedback",
-  "mistakes": ["mistake 1", "mistake 2"],
-  "improvement": "Actionable suggestion",
-  "model_answer": "Concise ideal model answer",
-  
-  "depth_verified_recommendation": true | false,
-  "reasoning": "1-2 sentences justifying the depth_verified_recommendation",
-  "session_summary": "3-4 sentences on overall performance"
-}
-"""
-                else:
-                    schema_rules = """
-Return ONLY a valid JSON object matching this schema exactly:
-{
-  "technical_score": 1..10,
-  "communication_score": 1..10,
-  "verdict": "Strong|Adequate|Weak",
-  "feedback": "Concise 1-2 sentences of feedback",
-  "mistakes": ["mistake 1", "mistake 2"],
-  "improvement": "Actionable suggestion",
-  "model_answer": "Concise ideal model answer"
-}
-"""
-                eval_prompt = project_prompt + f"""
-Evaluate the student's answer for this question:
-Question: {question.question}
-Student's Answer: {user_answer}
-
-STRICT RULE:
-{schema_rules}
-"""
-            else:
-                eval_prompt = f"""You are a senior technical interviewer evaluating a student's technical answer.
-Question: {question.question}
-Student's Answer: {user_answer}
-
-STRICT RULE:
-Return ONLY a valid JSON object matching this schema exactly:
-{{
-  "technical_score": 1..10,
-  "communication_score": 1..10,
-  "verdict": "Strong|Adequate|Weak",
-  "feedback": "Concise 1-2 sentences of feedback",
-  "mistakes": ["mistake 1", "mistake 2"],
-  "improvement": "Actionable suggestion",
-  "model_answer": "Concise ideal model answer"
-}}
-"""
-        elif question.session.associated_skill_id:
-            from app.models.skill_taxonomy import SkillTaxonomy
-            from app.models.student_skill import StudentSkill
-            skill = db.query(SkillTaxonomy).filter(SkillTaxonomy.id == question.session.associated_skill_id).first()
-            if skill:
-                skill_name = skill.skill_name
-                skill_description = skill.description or "Core technical concepts."
-                
-                # Fetch student skill level
-                ss = db.query(StudentSkill).filter(
-                    StudentSkill.user_id == user_id,
-                    StudentSkill.skill_id == question.session.associated_skill_id
-                ).first()
-                current_status = (ss.level or "Missing") if ss else "Missing"
-                
-                level_map = {
-                    "weak": "Weak",
-                    "moderate": "Moderate",
-                    "strong": "High Potential",
-                    "missing": "Missing"
-                }
-                current_status_label = level_map.get(current_status.lower(), current_status)
-                
-                topic_prompt = f"""You are a senior technical interviewer conducting a focused practice
-interview with a final-year engineering student. This is a TOPIC-BASED
-practice session — the student has chosen to drill one specific skill
-area, independent of any job description or project.
-
-TOPIC: {skill_name}
-TOPIC DESCRIPTION: {skill_description}
-STUDENT'S CURRENT LEVEL ON THIS TOPIC: {current_status_label} (e.g. Weak / High
-Potential / Missing — from their profile, so calibrate difficulty
-accordingly: start at fundamentals for Missing/Weak, move faster into
-depth for High Potential)
-
-YOUR GOAL
-Help the student genuinely get sharper at {skill_name} through realistic
-interview questions — not to catch them out. This is practice, not a
-pass/fail gate, so keep the tone encouraging even when correcting mistakes.
-
-HOW TO CONDUCT THIS INTERVIEW
-1. Start with a foundational or commonly-asked question in this topic —
-   the kind that comes up early in a real technical round.
-2. Listen to the answer, then ask ONE natural follow-up that either:
-   - probes deeper into something they mentioned, or
-   - gently redirects if they missed the core of the question, or
-   - moves to a related sub-topic if they answered well and you want to
-     cover more ground.
-3. Ask 4-6 questions total across the session, increasing in depth as the
-   student demonstrates competence. Do not ask more than one question at a time.
-4. Never lecture mid-interview. If an answer is wrong or incomplete, ask a
-   clarifying or corrective follow-up rather than immediately explaining
-   the right answer — save full explanations for the end-of-session feedback.
-5. Keep your own turns short — 1-3 sentences. This is the student's time to talk.
-
-AFTER EACH ANSWER, return a JSON object with this exact structure and
-nothing else (no prose outside the JSON):
-
-{{
-  "question_asked": "<the question you just asked>",
-  "student_answer_summary": "<one-sentence neutral summary of what they said>",
-  "score": <integer 0-10>,
-  "ai_feedback": "<2-3 sentences, specific to what they got right/wrong>",
-  "mistakes": ["<specific gap or error, if any>", "..."],
-  "model_answer": "<a concise, correct answer to the question just asked>",
-  "next_action": "follow_up" | "next_question" | "end_session"
-}}
-
-END OF SESSION
-After 4-6 questions, or if the student explicitly asks to stop, set
-next_action to "end_session" and include a final summary object instead:
-
-{{
-  "session_summary": "<3-4 sentences on overall performance in this topic>",
-  "overall_score": <integer 0-10>,
-  "strengths": ["...", "..."],
-  "gaps_to_work_on": ["...", "..."],
-  "recommended_next_topic": "<a related skill worth practicing next, or null>"
-}}
-
-TONE
-Direct, warm, and specific — like a senior engineer who wants the student
-to actually improve, not an examiner trying to trip them up. Avoid generic
-praise ("good job!") in favor of specific observations ("you correctly
-identified the N+1 query issue, but missed that indexing alone won't fix
-it if the join itself is the bottleneck").
-"""
-                eval_prompt = topic_prompt + f"""
-Evaluate the student's answer for this question:
-Question: {question.question}
-Student's Answer: {user_answer}
-
-STRICT RULE:
-Return ONLY a valid JSON object matching this schema exactly:
-{{
-  "technical_score": 1..10,
-  "communication_score": 1..10,
-  "verdict": "Strong|Adequate|Weak",
-  "feedback": "Concise 1-2 sentences of feedback",
-  "mistakes": ["mistake 1", "mistake 2"],
-  "improvement": "Actionable suggestion",
-  "model_answer": "Concise ideal model answer"
-}}
-"""
-            else:
-                eval_prompt = f"""You are a senior technical interviewer evaluating a student's technical answer.
-Question: {question.question}
-Student's Answer: {user_answer}
-
-STRICT RULE:
-Return ONLY a valid JSON object matching this schema exactly:
-{{
-  "technical_score": 1..10,
-  "communication_score": 1..10,
-  "verdict": "Strong|Adequate|Weak",
-  "feedback": "Concise 1-2 sentences of feedback",
-  "mistakes": ["mistake 1", "mistake 2"],
-  "improvement": "Actionable suggestion",
-  "model_answer": "Concise ideal model answer"
-}}
-"""
-        else:
-            eval_prompt = f"""You are a senior technical interviewer evaluating a student's technical answer.
-Question: {question.question}
-Student's Answer: {user_answer}
-
-STRICT RULE:
-Return ONLY a valid JSON object matching this schema exactly:
-{{
-  "technical_score": 1..10,
-  "communication_score": 1..10,
-  "verdict": "Strong|Adequate|Weak",
-  "feedback": "Concise 1-2 sentences of feedback",
-  "mistakes": ["mistake 1", "mistake 2"],
-  "improvement": "Actionable suggestion",
-  "model_answer": "Concise ideal model answer"
-}}
-"""
-        try:
-            if not settings.GEMINI_API_KEY:
-                raise ValueError("GEMINI_API_KEY not configured")
-            url = (
-                f"https://generativelanguage.googleapis.com/v1beta/models/"
-                f"{settings.GEMINI_MODEL}:generateContent"
-            )
-            payload = {
-                "contents": [{"parts": [{"text": eval_prompt}]}],
-                "generationConfig": {"temperature": 0.3, "response_mime_type": "application/json"},
-            }
-            async with httpx.AsyncClient(timeout=90.0) as client_http:
-                resp = await client_http.post(url, json=payload, headers=_gemini_headers())
-                resp.raise_for_status()
-                raw = resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
-                eval_item = json.loads(_strip_json_fences(raw))
-        except Exception as e:
-            logger.error("Gemini real-time evaluation failed: %s", e)
-            eval_item = {
-                "technical_score": 5,
-                "communication_score": 5,
-                "verdict": "Adequate",
-                "feedback": "Real-time evaluation fallback due to service interruption.",
-                "mistakes": [],
-                "improvement": "Review the question concepts.",
-                "model_answer": "Model answer unavailable."
+        reply = await _grade_answer(self._grading_message(db, question, user_answer, user_id))
+        if reply is None:
+            # Keep the answer but give it no score, so it never counts as graded.
+            db.commit()
+            return {
+                "question_id": str(question.id),
+                "technical_score": None,
+                "communication_score": None,
+                "verdict": None,
+                "feedback": "We couldn't evaluate this answer. It was saved without a score.",
+                "confidence_score": None,
+                "level": None,
             }
 
-        question.ai_score = eval_item.get("technical_score", eval_item.get("score", 5))
-        question.ai_verdict = eval_item.get("verdict", "Adequate")
-        question.ai_feedback = eval_item.get("feedback", eval_item.get("ai_feedback"))
-        question.model_answer = eval_item.get("model_answer")
-        question.mistakes = eval_item.get("mistakes", [])
-        question.improvement = eval_item.get("improvement")
+        question.ai_score = reply.technical_score
+        question.ai_verdict = _verdict(reply.technical_score)
+        question.ai_feedback = reply.feedback
+        question.model_answer = reply.model_answer
+        question.mistakes = reply.mistakes
+        question.improvement = reply.improvement
         question.evaluated_at = datetime.now(timezone.utc)
 
         import sqlalchemy as sa
@@ -1644,8 +1434,8 @@ Return ONLY a valid JSON object matching this schema exactly:
         from app.utils.academic import score_to_level
 
         topic = question.topic
-        tech_score = int(question.ai_score)
-        comm_score = int(eval_item.get("communication_score", 5))
+        tech_score = reply.technical_score
+        comm_score = reply.communication_score
 
         if db.bind.dialect.name == "sqlite":
             tax = (
@@ -1787,13 +1577,9 @@ Return ONLY a valid JSON object matching this schema exactly:
                     from app.models.student_project import StudentProject
                     project = db.query(StudentProject).filter(StudentProject.id == session.project_id).first()
                     if project:
-                        depth_recommendation = eval_item.get("depth_verified_recommendation")
-                        if depth_recommendation is None:
-                            # Fallback if the field isn't present in response (e.g. from static mock/older flows)
-                            is_verified = (avg_score >= 7.0)
-                        else:
-                            is_verified = (avg_score >= 6.0 and depth_recommendation is True)
-                        
+                        # Every question is scored here (all_evaluated above).
+                        is_verified = avg_score >= 7.0
+
                         if is_verified:
                             project.depth_verified = True
                             project.depth_verified_at = datetime.now(timezone.utc)
