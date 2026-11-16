@@ -7,7 +7,7 @@ read or change it by supplying its ID.
 """
 import uuid
 from contextlib import contextmanager
-from unittest.mock import patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -428,3 +428,104 @@ def test_micro_session_owner_still_succeeds(
     assert resp.status_code == 201, resp.text
     assert resp.json()["roadmap_task_id"] == str(apply_.id)
     assert resp.json()["is_micro"] is True
+
+
+# ---------------------------------------------------------------------------
+# C1: micro-interview completion hook (evaluate_single_answer_async)
+# ---------------------------------------------------------------------------
+
+@contextmanager
+def gemini_scores(technical_score):
+    """Mock the Gemini evaluation call so the answer scores ``technical_score``."""
+    import json as _json
+    resp = MagicMock()
+    resp.status_code = 200
+    resp.raise_for_status = MagicMock()
+    resp.json.return_value = {"candidates": [{"content": {"parts": [{"text": _json.dumps({
+        "technical_score": technical_score, "communication_score": technical_score,
+        "verdict": "Strong", "feedback": "ok", "mistakes": [],
+        "improvement": "none", "model_answer": "m",
+    })}]}}]}
+    client = AsyncMock()
+    client.post = AsyncMock(return_value=resp)
+    with patch("app.modules.interview.service.settings.GEMINI_API_KEY", "test"),          patch("app.modules.interview.service.httpx.AsyncClient") as cls:
+        cls.return_value.__aenter__ = AsyncMock(return_value=client)
+        cls.return_value.__aexit__ = AsyncMock(return_value=False)
+        yield
+
+
+def micro_session_with_last_answer_pending(db, user, skill, task_id):
+    """Micro session; two questions already scored 8/7, third answered but unscored."""
+    sess = InterviewSession(
+        user_id=user.id, branch="CSE", topic="Micro", status="active",
+        is_micro=True, associated_skill_id=skill.id, roadmap_task_id=task_id,
+    )
+    db.add(sess)
+    db.flush()
+    qs = [
+        InterviewQuestion(session_id=sess.id, topic="t", question="Q1", difficulty="hard",
+                          ai_score=8, user_answer="a1"),
+        InterviewQuestion(session_id=sess.id, topic="t", question="Q2", difficulty="hard",
+                          ai_score=7, user_answer="a2"),
+        InterviewQuestion(session_id=sess.id, topic="t", question="Q3", difficulty="hard",
+                          user_answer="a3"),
+    ]
+    db.add_all(qs)
+    db.commit()
+    return sess, qs[2]
+
+
+async def run_hook(db, user, sess, last_q):
+    from app.modules.interview.service import interview_service
+    with gemini_scores(8):
+        return await interview_service.evaluate_single_answer_async(
+            db, user_id=user.id, session_id=sess.id, question_id=last_q.id,
+            user_answer="a3",
+        )
+
+
+@pytest.mark.asyncio
+async def test_hook_does_not_complete_task_owned_by_someone_else(
+    db_session, other_user, a_tasks
+):
+    """B's session carries A's task ID (e.g. a row created before the fix)."""
+    roadmap, _, apply_, skill = a_tasks
+    sess, last_q = micro_session_with_last_answer_pending(
+        db_session, other_user, skill, apply_.id
+    )
+    before = snap_task(db_session, apply_)
+
+    result = await run_hook(db_session, other_user, sess, last_q)
+
+    assert result["technical_score"] == 8          # evaluation itself still works
+    assert snap_task(db_session, apply_) == before  # A's task and roadmap untouched
+    assert apply_.status == "pending"
+
+
+@pytest.mark.asyncio
+async def test_hook_foreign_task_for_admin_session_owner_is_skipped_too(
+    db_session, sample_user, b_tasks, a_tasks
+):
+    """No admin bypass: admin A's session pointing at B's task does nothing."""
+    _, _, apply_b = b_tasks
+    skill = a_tasks[3]
+    sess, last_q = micro_session_with_last_answer_pending(
+        db_session, sample_user, skill, apply_b.id
+    )
+    before = snap_task(db_session, apply_b)
+    await run_hook(db_session, sample_user, sess, last_q)
+    assert snap_task(db_session, apply_b) == before
+
+
+@pytest.mark.asyncio
+async def test_hook_owner_still_completes_own_task(db_session, sample_user, a_tasks):
+    roadmap, _, apply_, skill = a_tasks
+    sess, last_q = micro_session_with_last_answer_pending(
+        db_session, sample_user, skill, apply_.id
+    )
+    await run_hook(db_session, sample_user, sess, last_q)
+    db_session.refresh(apply_)
+    db_session.refresh(roadmap)
+    assert apply_.status == "completed"
+    assert apply_.validation_status == "verified"
+    assert roadmap.completed_tasks == 1
