@@ -40,7 +40,7 @@ class UpdateProfileRequest(BaseModel):
 class ChangePasswordRequest(BaseModel):
     """Payload for PUT /auth/change-password."""
     current_password: str
-    new_password: str = Field(..., min_length=8)
+    new_password: str = Field(..., min_length=8, max_length=72)  # bcrypt limit
 
 
 # ---------------------------------------------------------------------------
@@ -51,7 +51,7 @@ class StudentRegistration(BaseModel):
     full_name: str
     email: EmailStr
     student_id: str | None = None
-    password: str
+    password: str = Field(..., max_length=72)  # bcrypt limit
     department: str
     batch_year: int
     current_semester: int

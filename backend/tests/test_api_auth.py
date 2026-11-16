@@ -111,3 +111,32 @@ def test_unauthorized_access(client):
     response = client.get("/api/auth/me")
     
     assert response.status_code == 401
+
+
+LONG_PASSWORD = "Aa1!" + "x" * 69  # 73 characters, above the bcrypt 72-byte limit
+
+
+def test_register_rejects_password_over_72_chars(client):
+    """bcrypt cannot hash more than 72 bytes; reject at validation (422), not 500."""
+    assert len(LONG_PASSWORD) == 73
+    response = client.post(
+        "/api/auth/register",
+        json={
+            "full_name": "Long Password",
+            "email": "long.password@example.com",
+            "password": LONG_PASSWORD,
+            "department": "CSE",
+            "batch_year": 2026,
+            "current_semester": 3,
+        },
+    )
+    assert response.status_code == 422
+
+
+def test_change_password_rejects_new_password_over_72_chars(auth_client):
+    response = auth_client.put(
+        "/api/auth/change-password",
+        json={"current_password": "Test@123", "new_password": LONG_PASSWORD},
+    )
+    assert response.status_code == 422
+
