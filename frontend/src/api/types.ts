@@ -8,10 +8,3 @@ export interface Student {
     created_at: string;
     updated_at: string;
 }
-
-export interface StudentListResponse {
-    total: number;
-    page: number;
-    page_size: number;
-    students: Student[];
-}

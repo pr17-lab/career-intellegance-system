@@ -1,23 +1,11 @@
 import api from './client';
 import type {
-    GeneratedQuestionsResponse,
     InterviewSession,
     InterviewSessionSummary,
     AnswerSubmitResponse,
     EvaluationResult,
 } from '../types/interview';
 import type { TaxonomySearchResponse } from '../types/career';
-
-// Generate questions (does not create a session)
-export const generateQuestions = async (
-    topic?: string,
-    limit = 10
-): Promise<GeneratedQuestionsResponse> => {
-    const params: Record<string, string | number> = { limit };
-    if (topic) params.topic = topic;
-    const res = await api.get('/interview/questions', { params });
-    return res.data;
-};
 
 // List all past sessions
 export const listSessions = async (): Promise<{ sessions: InterviewSessionSummary[] }> => {

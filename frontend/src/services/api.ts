@@ -1,13 +1,8 @@
 import api from '../api/client';
 import {
-    StudentListResponse,
-    Student,
-} from '../api/types';
-import {
     StudentSkill,
     SkillGap,
     SkillsSummary,
-    CareerRecommendation,
     CareerRecommendationsResponse,
     Roadmap,
     RoadmapDetail,
@@ -16,22 +11,6 @@ import {
     TaxonomySearchResponse,
 } from '../types/career';
 import type { InterviewSession } from '../types/interview';
-
-export const StudentService = {
-    getStudents: async (page = 1, pageSize = 20, branch?: string, semester?: number) => {
-        const params: any = { page, page_size: pageSize };
-        if (branch) params.branch = branch;
-        if (semester) params.semester = semester;
-
-        const response = await api.get<StudentListResponse>('/students', { params });
-        return response.data;
-    },
-
-    getStudent: async (id: string) => {
-        const response = await api.get<Student>(`/students/${id}`);
-        return response.data;
-    }
-};
 
 // ─── V2 Career Intelligence Services ──────────────────────────────────────────
 
@@ -53,11 +32,6 @@ export const SkillsService = {
 
     getCareerRecommendations: async () => {
         const response = await api.get<CareerRecommendationsResponse>('/skills/recommendations');
-        return response.data;
-    },
-
-    getRecommendation: async () => {
-        const response = await api.get<CareerRecommendation>('/skills/recommendation');
         return response.data;
     },
 

@@ -157,8 +157,7 @@ export function useWebSocketInterview(sessionId: string, onCompleted: () => void
         }
 
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const token = localStorage.getItem('access_token') || '';
-        const wsUrl = `${protocol}//${window.location.host}/api/interview/ws/interview/${sessionIdRef.current}${token ? `?token=${token}` : ''}`;
+        const wsUrl = `${protocol}//${window.location.host}/api/interview/ws/interview/${sessionIdRef.current}`;
 
         console.log(`[WS] ${isReconnect ? 'Reconnecting' : 'Connecting'} attempt ${retryAttemptRef.current + 1} → ${wsUrl}`);
 
@@ -343,10 +342,7 @@ export function useWebSocketInterview(sessionId: string, onCompleted: () => void
                 return;
             }
 
-            // 4. Transitional fallback — see plan §Item 2 TODO comment.
-            // TODO: remove once backend close-code changes (4001/4004) are deployed — see Backend Changes §3.
-            // This branch is a transitional fallback for distinguishing auth/session failures from normal
-            // closes before the backend emits distinct close codes.
+            // 4. Fallback: a normal close (1000) before any successful connection means the session was rejected.
             if (event.code === 1000 && !hasHadSuccessfulConnection.current) {
                 setWsError('session_invalid');
                 setConnState('failed');
