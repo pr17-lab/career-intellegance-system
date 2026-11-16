@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, Numeric, DateTime, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, String, Numeric, DateTime, ForeignKey, UniqueConstraint, CheckConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -18,6 +18,10 @@ class JobSkillRequirement(Base):
 
     __table_args__ = (
         UniqueConstraint('job_role', 'skill_id', name='uq_job_role_skill'),
+        CheckConstraint(
+            "importance IN ('must_have', 'preferred', 'nice_to_have')",
+            name="ck_job_skill_requirement_importance"
+        ),
     )
 
     # Relationships

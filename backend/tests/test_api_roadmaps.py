@@ -201,7 +201,7 @@ async def test_verify_github_complexity_async_success_updates_task(db_session, s
         else:
             return mock_repo_resp
 
-    async def mock_post(url, json=None):
+    async def mock_post(url, json=None, **kwargs):
         return mock_gemini_resp
 
     mock_client = AsyncMock()

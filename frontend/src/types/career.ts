@@ -48,6 +48,35 @@ export interface CareerRecommendation {
   transition_target: string | null;
 }
 
+/** One entry in `recommendations.primary` / `.alternatives` (service.py gap_to_dict). */
+export interface CareerRecommendationItem {
+  job_role: string;
+  match_score: number;
+  match_label: string;
+  requirements_last_reviewed: string | null;
+}
+
+/** `recommendations` field of GET /api/skills/recommendations (service.get_career_recommendation). */
+export interface CareerRecommendationSummary {
+  /** null when the student has no computed skill gaps yet */
+  primary: CareerRecommendationItem | null;
+  alternatives: CareerRecommendationItem[];
+  is_transition: boolean;
+  transition_target: string | null;
+  out_of_domain: boolean;
+}
+
+/** Response of GET /api/skills/recommendations (backend/app/api/routes/career.py). */
+export interface CareerRecommendationsResponse {
+  recommendations: CareerRecommendationSummary;
+  tiers: {
+    excellent: SkillGap[];
+    good: SkillGap[];
+    potential: SkillGap[];
+    low: SkillGap[];
+  };
+}
+
 export interface RoadmapTask {
   id: string;
   roadmap_id: string;

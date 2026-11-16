@@ -20,7 +20,7 @@ import random
 import re
 import uuid
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Optional, Callable, Any
 from uuid import UUID
@@ -1198,7 +1198,7 @@ Return ONLY the JSON array. No other text."""
                 )
 
         # --- Write results back to DB ---
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         comm_scores = []
         for eval_item in evaluations:
             idx = eval_item.get("question_index", 1) - 1
@@ -1630,7 +1630,7 @@ Return ONLY a valid JSON object matching this schema exactly:
         question.model_answer = eval_item.get("model_answer")
         question.mistakes = eval_item.get("mistakes", [])
         question.improvement = eval_item.get("improvement")
-        question.evaluated_at = datetime.utcnow()
+        question.evaluated_at = datetime.now(timezone.utc)
 
         import sqlalchemy as sa
         from app.models.student_skill import StudentSkill
@@ -1755,7 +1755,7 @@ Return ONLY a valid JSON object matching this schema exactly:
                     if task:
                         task.status = "completed"
                         task.validation_status = "verified"
-                        task.completed_at = datetime.utcnow()
+                        task.completed_at = datetime.now(timezone.utc)
                         
                         rm = task.roadmap
                         if rm:
@@ -1783,7 +1783,7 @@ Return ONLY a valid JSON object matching this schema exactly:
                         
                         if is_verified:
                             project.depth_verified = True
-                            project.depth_verified_at = datetime.utcnow()
+                            project.depth_verified_at = datetime.now(timezone.utc)
                         else:
                             project.depth_verified = False
                             project.depth_verified_at = None
@@ -2202,16 +2202,31 @@ def _update_skill_weights(
             topic = q.topic
             tech_score = int(q.ai_score)
             
-            tax = (
-                db.query(SkillTaxonomy)
-                .filter(
-                    sa.or_(
-                        sa.func.lower(SkillTaxonomy.skill_name) == topic.lower(),
-                        sa.func.array_to_string(SkillTaxonomy.aliases, ",").ilike(f"%{topic}%"),
-                    )
+            tax = None
+            is_sqlite = db.bind.dialect.name == "sqlite"
+            if is_sqlite:
+                tax = (
+                    db.query(SkillTaxonomy)
+                    .filter(sa.func.lower(SkillTaxonomy.skill_name) == topic.lower())
+                    .first()
                 )
-                .first()
-            )
+                if not tax:
+                    all_tax = db.query(SkillTaxonomy).all()
+                    for t in all_tax:
+                        if t.aliases and any(topic.lower() in str(a).lower() for a in t.aliases):
+                            tax = t
+                            break
+            else:
+                tax = (
+                    db.query(SkillTaxonomy)
+                    .filter(
+                        sa.or_(
+                            sa.func.lower(SkillTaxonomy.skill_name) == topic.lower(),
+                            sa.func.array_to_string(SkillTaxonomy.aliases, ",").ilike(f"%{topic}%"),
+                        )
+                    )
+                    .first()
+                )
             if not tax:
                 continue
 

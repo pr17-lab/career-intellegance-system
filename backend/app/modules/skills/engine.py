@@ -309,14 +309,8 @@ def compute_gaps_for_student(db: Session, user_id: str):
             target_roles = json.loads(target_roles)
         except Exception:
             pass
-    elif isinstance(target_roles, list) and len(target_roles) > 0 and target_roles[0] == '[' and target_roles[-1] == ']':
-        import json
-        try:
-            target_roles = json.loads("".join(target_roles))
-        except Exception:
-            pass
-            
-    if not target_roles:
+
+    if not target_roles or not isinstance(target_roles, list):
         return
         
     prof = db.query(StudentProfile).filter(StudentProfile.user_id == user_id).first()

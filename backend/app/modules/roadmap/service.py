@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 from typing import List
 from fastapi import HTTPException
@@ -495,7 +495,7 @@ def complete_task(db: Session, user_id: UUID, task_id: UUID, feedback_score: int
         
     if task.status != "completed":
         task.status = "completed"
-        task.completed_at = datetime.utcnow()
+        task.completed_at = datetime.now(timezone.utc)
         if feedback_score:
             task.feedback_score = feedback_score
         
@@ -508,7 +508,12 @@ def complete_task(db: Session, user_id: UUID, task_id: UUID, feedback_score: int
             _update_skill_on_task_completion(db, user_id, task.skill_id)
             
         db.commit()
-    return get_roadmap(db, user_id, task.roadmap_id).tasks[0] # Returns a reconstructed schema representation
+    roadmap_resp = get_roadmap(db, user_id, task.roadmap_id)
+    # Return the specific completed task, not always tasks[0]
+    for t in roadmap_resp.tasks:
+        if t.id == task_id:
+            return t
+    return roadmap_resp.tasks[0]  # fallback
 
 def skip_task(db: Session, user_id: UUID, task_id: UUID) -> RoadmapTaskResponse:
     task = db.query(RoadmapTask).join(Roadmap).filter(
@@ -554,7 +559,7 @@ def update_task_status(db: Session, user_id: UUID, task_id: UUID, status: str) -
     old_status = task.status
     task.status = status
     if status == "completed" and old_status != "completed":
-        task.completed_at = datetime.utcnow()
+        task.completed_at = datetime.now(timezone.utc)
         task.roadmap.completed_tasks = (task.roadmap.completed_tasks or 0) + 1
         if task.skill_id:
             _update_skill_on_task_completion(db, user_id, task.skill_id)

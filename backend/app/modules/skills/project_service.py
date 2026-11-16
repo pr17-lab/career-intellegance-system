@@ -6,7 +6,8 @@ and Gemini-based technology/skill tag extraction.
 import base64
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
+from typing import Optional
 import uuid
 from uuid import UUID
 
@@ -49,12 +50,18 @@ def parse_repo_url(repo_url: str) -> tuple[str, str]:
     return owner, repo
 
 
-async def verify_github_complexity_async(repo_url: str, user_id: UUID, db: Session, task_id: UUID = None) -> None:
+async def verify_github_complexity_async(repo_url: str, user_id: UUID, db: Optional[Session] = None, task_id: UUID = None) -> None:
     """
     Asynchronously verify a GitHub repository's structural complexity,
     extract framework and tool tags via Gemini 1.5 Flash,
     and persist/update the StudentProject record in the database.
     """
+    manage_session = False
+    if db is None:
+        from app.core.database import SessionLocal
+        db = SessionLocal()
+        manage_session = True
+
     def _fail_task():
         if task_id:
             try:
@@ -236,7 +243,7 @@ README:
             .first()
         )
 
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         title_val = repo.replace("-", " ").replace("_", " ").title() + " Repository"
 
         is_sqlite = db.bind.dialect.name == "sqlite"
@@ -347,7 +354,7 @@ README:
 
                 # Update level and last computed timestamp
                 ss.level = score_to_level(ss.confidence_score)
-                ss.last_computed_at = datetime.utcnow()
+                ss.last_computed_at = datetime.now(timezone.utc)
 
             db.commit()
             logger.info("Successfully completed composite calibration loop for user %s", user_id)
@@ -359,7 +366,7 @@ README:
                 if task:
                     task.validation_status = "verified"
                     task.status = "completed"
-                    task.completed_at = datetime.utcnow()
+                    task.completed_at = datetime.now(timezone.utc)
                     
                     # Update roadmap completed tasks
                     rm = task.roadmap
@@ -390,3 +397,6 @@ README:
                     db.commit()
             except Exception as db_exc:
                 logger.error("Failed to update task to failed in db rollback block: %s", db_exc)
+    finally:
+        if manage_session and db is not None:
+            db.close()

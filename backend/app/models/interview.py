@@ -30,7 +30,7 @@ class SessionStatus:
     COMPLETED = "completed"
     ABANDONED = "abandoned"
 
-    ALL = {ACTIVE, COMPLETED, abandoned := "abandoned"}
+    ALL = frozenset({ACTIVE, COMPLETED, ABANDONED})
 
 
 class InterviewSession(Base):
@@ -47,7 +47,7 @@ class InterviewSession(Base):
     status     = Column(String(20),  nullable=False, default=SessionStatus.ACTIVE)
     is_micro   = Column(Boolean, default=False, nullable=True)
     associated_skill_id = Column(UUID(as_uuid=True), ForeignKey("skill_taxonomy.id"), nullable=True)
-    roadmap_task_id = Column(UUID(as_uuid=True), ForeignKey("roadmap_tasks.id"), nullable=True)
+    roadmap_task_id = Column(UUID(as_uuid=True), ForeignKey("roadmap_tasks.id", ondelete="SET NULL"), nullable=True)
     project_id = Column(UUID(as_uuid=True), ForeignKey("student_projects.id", ondelete="SET NULL"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(

@@ -2,25 +2,20 @@ import api from '../api/client';
 import {
     StudentListResponse,
     Student,
-    AcademicRecordSummary,
-    GPATrend,
-    SubjectPerformance,
-    SemesterComparison,
-    StudentAnalyticsSummary,
-    CohortStats,
-    AnalyticsOverview
 } from '../api/types';
 import {
     StudentSkill,
     SkillGap,
     SkillsSummary,
     CareerRecommendation,
+    CareerRecommendationsResponse,
     Roadmap,
     RoadmapDetail,
     StudentPreferences,
     JobListingsResponse,
     TaxonomySearchResponse,
 } from '../types/career';
+import type { InterviewSession } from '../types/interview';
 
 export const StudentService = {
     getStudents: async (page = 1, pageSize = 20, branch?: string, semester?: number) => {
@@ -57,7 +52,7 @@ export const SkillsService = {
     },
 
     getCareerRecommendations: async () => {
-        const response = await api.get<any>('/skills/recommendations');
+        const response = await api.get<CareerRecommendationsResponse>('/skills/recommendations');
         return response.data;
     },
 
@@ -111,12 +106,12 @@ export const RoadmapService = {
     createMicroSession: async (skill_id: string, roadmap_task_id?: string) => {
         const params: Record<string, string> = { skill_id };
         if (roadmap_task_id) params.roadmap_task_id = roadmap_task_id;
-        const response = await api.post<any>('/interview/sessions/micro', null, { params });
+        const response = await api.post<InterviewSession>('/interview/sessions/micro', null, { params });
         return response.data;
     },
 
     createProjectSession: async (project_id: string, limit = 3) => {
-        const response = await api.post<any>('/interview/sessions/practice-project', {
+        const response = await api.post<InterviewSession>('/interview/sessions/practice-project', {
             project_id,
             limit
         });

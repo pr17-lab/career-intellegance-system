@@ -10,7 +10,7 @@ class StudentSkill(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    skill_id = Column(UUID(as_uuid=True), ForeignKey("skill_taxonomy.id"), nullable=False)
+    skill_id = Column(UUID(as_uuid=True), ForeignKey("skill_taxonomy.id", ondelete="CASCADE"), nullable=False)
     confidence_score = Column(Numeric(5, 2), default=0)
     level = Column(String(20))
     source = Column(ARRAY(Text))
