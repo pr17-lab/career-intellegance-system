@@ -95,3 +95,4 @@ student_passwords*.csv
 user_credentials*.csv
 data/*.sql
 backend/scripts/*.txt
+data/*.csv
