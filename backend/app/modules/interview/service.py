@@ -749,7 +749,12 @@ STRICT RULES:
         from app.models.skill_taxonomy import SkillTaxonomy
         from app.models.roadmap import Roadmap, RoadmapTask
         from app.models.interview import InterviewQuestion
-        
+        from app.modules.roadmap.service import get_owned_task_or_404
+
+        # A client-supplied task ID must belong to this user (404 otherwise).
+        if roadmap_task_id:
+            get_owned_task_or_404(db, roadmap_task_id, user_id)
+
         _academic_svc = AcademicService()
         profile = _academic_svc.get_student_profile(db, user_id)
         branch = profile.department if profile else "CSE"
@@ -1733,7 +1738,15 @@ Return ONLY a valid JSON object matching this schema exactly:
                     from app.models.roadmap import RoadmapTask
                     task = None
                     if session.roadmap_task_id:
-                        task = db.query(RoadmapTask).filter(RoadmapTask.id == session.roadmap_task_id).first()
+                        # The stored ID is not trusted: it must belong to this user.
+                        from app.modules.roadmap.service import find_owned_task
+                        task = find_owned_task(db, session.roadmap_task_id, user_id)
+                        if task is None:
+                            logger.warning(
+                                "Skipping roadmap completion: session %s references task %s "
+                                "which is not owned by user %s",
+                                session.id, session.roadmap_task_id, user_id,
+                            )
                     else:
                         from app.models.roadmap import Roadmap
                         roadmap = db.query(Roadmap).filter(Roadmap.user_id == user_id, Roadmap.status == "active").first()

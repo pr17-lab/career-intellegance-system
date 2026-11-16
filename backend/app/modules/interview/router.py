@@ -166,11 +166,9 @@ async def create_session(
         is_micro_session = False
 
         if body.roadmap_task_id:
-            from app.models.roadmap import RoadmapTask
             from app.models.skill_taxonomy import SkillTaxonomy
-            task = db.query(RoadmapTask).filter(RoadmapTask.id == body.roadmap_task_id).first()
-            if not task:
-                raise HTTPException(status_code=404, detail="Roadmap task not found")
+            from app.modules.roadmap.service import get_owned_task_or_404
+            task = get_owned_task_or_404(db, body.roadmap_task_id, current_user.id)
             
             skill = task.associated_skill or task.skill
             if not skill and task.skill_id:
@@ -315,6 +313,8 @@ async def create_micro_session(
             db, current_user.id, skill_id, roadmap_task_id
         )
         return session
+    except HTTPException:
+        raise
     except Exception as exc:
         logger.error("Error creating micro-interview session: %s", exc, exc_info=True)
         raise HTTPException(status_code=500, detail=str(exc))

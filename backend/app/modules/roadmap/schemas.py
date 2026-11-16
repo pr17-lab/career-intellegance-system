@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Literal, Optional
 from uuid import UUID
 from datetime import datetime
 
@@ -71,5 +71,5 @@ class TaskStatusUpdate(BaseModel):
     status: str
 
 class ResourceVoteRequest(BaseModel):
-    vote_type: str # 'upvote' or 'downvote'
+    vote_type: Literal["upvote", "downvote"]
 

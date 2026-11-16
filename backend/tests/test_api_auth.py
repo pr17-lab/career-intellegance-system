@@ -137,6 +137,17 @@ def test_register_rejects_password_over_72_bytes(client, password):
     assert "72 bytes" in response.text
 
 
+def test_register_over_72_bytes_error_message(client):
+    response = client.post("/api/auth/register", json=_register_payload(LONG_ASCII))
+    assert response.status_code == 422
+    error = response.json()["detail"][0]
+    assert error["loc"] == ["body", "password"]
+    assert error["msg"] == (
+        "Value error, Password must be at most 72 bytes when encoded as UTF-8 "
+        "(fewer characters if it contains emoji or non-ASCII letters)."
+    )
+
+
 @pytest.mark.parametrize("password", [LONG_ASCII, LONG_EMOJI], ids=["73-ascii", "40-emoji"])
 def test_change_password_rejects_new_password_over_72_bytes(auth_client, password):
     response = auth_client.put(
