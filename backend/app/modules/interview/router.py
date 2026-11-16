@@ -419,36 +419,29 @@ import json
 
 async def get_websocket_user(websocket: WebSocket, db: Session) -> Optional[User]:
     token = websocket.query_params.get("token")
-    print("DEBUG get_websocket_user: token from query params =", token)
     if not token:
         token = websocket.cookies.get("access_token")
-        print("DEBUG get_websocket_user: token from cookies =", token)
     if not token:
-        print("DEBUG get_websocket_user: no token found")
         return None
-    
+
     # Strip enclosing quotes if present (e.g. Starlette TestClient cookie format)
     token = token.strip('"').strip("'")
-    
+
     if token.startswith("Bearer "):
         token = token[7:]
-        print("DEBUG get_websocket_user: stripped Bearer, raw =", token)
-    
+
     try:
         from app.core.security import decode_access_token
         payload = decode_access_token(token)
-        print("DEBUG get_websocket_user: decoded payload =", payload)
         if payload is None:
             return None
         email = payload.get("sub")
-        print("DEBUG get_websocket_user: email =", email)
         if email is None:
             return None
         user = db.query(User).filter(User.email == email).first()
-        print("DEBUG get_websocket_user: user =", user)
         return user
     except Exception as exc:
-        print("DEBUG get_websocket_user: exception =", exc)
+        logger.warning("WebSocket auth error: %s", type(exc).__name__)
         return None
 
 
@@ -685,8 +678,7 @@ async def websocket_interview(
         logger.info("WebSocket disconnected for session: %s", session_id)
     except Exception as e:
         logger.error("Error in WebSocket session %s: %s", session_id, e)
-    finally:
-        db.close()
+    # Note: db session lifecycle is managed by Depends(get_db); no manual close needed.
 
 
 # ---------------------------------------------------------------------------
