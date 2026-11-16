@@ -96,3 +96,6 @@ user_credentials*.csv
 data/*.sql
 backend/scripts/*.txt
 data/*.csv
+
+# Local planning notes
+PHASE1_PLAN.md
