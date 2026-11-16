@@ -76,3 +76,12 @@ docker-compose.override.yml
 # Railway
 .railway/
 .env.local
+
+# Local agent notes / review output
+.agent/
+docs/audit/
+REVIEW_PROTOCOL.md
+SATA_DISCOVERY_REPORT.md
+WORKTREE_TRIAGE.md
+CLEANUP_MANIFEST.md
+.sata_agent_state.md
